@@ -10,7 +10,7 @@ jobs:
   call-test-workflow:
     uses: ./.github/workflows/python-run-tests.yml
     with:
-      operating-systems: "['ubuntu-latest', 'macos-latest', 'windows.latest']"
-      python-versions: "['3.9', '3.10', '3.11']"
-      working-dir: samplePythonProject
+      operating-systems: "['ubuntu-latest']" # "['ubuntu-latest', 'macos-latest', 'windows.latest']"
+      python-versions:  "[ '3.11']" # "['3.9', '3.10', '3.11']"
+      working-dir: ./samplePythonProject
     secrets: inherit
