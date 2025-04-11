@@ -1,16 +1,21 @@
 [project]
-name = "samplepythonproject"
+name = "theproject"
 version = "0.1.0"
 description = ""
 authors = [
     {name = "Oakley Jurgens",email = "o.jurgens@gns.cri.nz"}
 ]
 readme = "README.md"
-requires-python = ">=3.12"
+packages = [
+    {include = "src/theproject"}
+]
+
 dependencies = [
     "pytest (>=8.3.5,<9.0.0)"
 ]
 
+[tool.poetry.dependencies]
+python = ">=3.9,<4.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
