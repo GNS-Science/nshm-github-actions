@@ -53,6 +53,7 @@ jobs:
     defaults:
       run:
         shell: bash
+        working-directory: ${{ inputs.working-dir }}
     env:
       OS: ${{ matrix.os }}
       PYTHON: ${{ matrix.python-version }}
@@ -62,8 +63,6 @@ jobs:
       #       check out repo
       #----------------------------------------------
       - uses: actions/checkout@v4
-
-      - run: cd ${{ inputs.working-dir}}
 
       #----------------------------------------------
       #       install Python
