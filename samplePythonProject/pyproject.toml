@@ -1,5 +1,5 @@
 [project]
-name = "samplepythonproject"
+name = "theproject"
 version = "0.1.0"
 description = ""
 authors = [
@@ -7,7 +7,7 @@ authors = [
 ]
 readme = "README.md"
 packages = [
-    {include = "src/samplepythonproject"}
+    {include = "src/theproject"}
 ]
 
 dependencies = [
