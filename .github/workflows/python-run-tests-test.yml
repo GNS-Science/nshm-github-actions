@@ -1,4 +1,4 @@
-# A workflow that is run each day to test that python-run-tests.yml works
+# A workflow that is scheduled to run regularly in order to check that python-run-tests.yml works
 
 name: python-run-tests test workflow
 
