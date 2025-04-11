@@ -59,12 +59,13 @@ jobs:
       PYTHON: ${{ matrix.python-version }}
     steps:
 
-      - run: pwd
-
       #----------------------------------------------
       #       check out repo
       #----------------------------------------------
       - uses: actions/checkout@v4
+
+      - run: ls -la
+      - run: pwd
 
       #----------------------------------------------
       #       install Python
