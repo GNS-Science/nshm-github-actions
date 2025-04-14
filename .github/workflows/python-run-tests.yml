@@ -23,6 +23,11 @@ on:
         required: true
         type: string
         default: "['3.10', '3.11']"
+      fail-fast:
+        description: Set to false if you want all jobs finish running even if one fails. See https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idstrategyfail-fast
+        required: false
+        type: boolean
+        default: true
       poetry-version:
         description: The poetry version to use
         required: false
@@ -45,6 +50,7 @@ jobs:
     timeout-minutes: 10
 
     strategy:
+      fail-fast: ${{ inputs.fail-fast}}
       matrix:
         python-version: ${{ fromJson(inputs.python-versions) }}
         os: ${{ fromJson(inputs.operating-systems) }}
