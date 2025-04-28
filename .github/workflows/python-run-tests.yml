@@ -28,6 +28,11 @@ on:
         required: false
         type: boolean
         default: true
+      timeout-minutes:
+        description: Maximum runtime in minutes
+        required: false
+        type: number
+        default: 10
       poetry-version:
         description: The poetry version to use
         required: false
@@ -47,7 +52,7 @@ on:
 
 jobs:
   run_unit_tests:
-    timeout-minutes: 10
+    timeout-minutes: ${{ inputs.timeout-minutes }}
 
     strategy:
       fail-fast: ${{ inputs.fail-fast}}
