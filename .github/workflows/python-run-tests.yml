@@ -48,6 +48,11 @@ on:
         required: false
         type: string
         default: .
+      delete-poetry-lock:
+        description: Delete poetry lock file in order to test against newer versions
+        required: false
+        type: boolean
+        default: false
 
 
 jobs:
@@ -74,6 +79,13 @@ jobs:
       #       check out repo
       #----------------------------------------------
       - uses: actions/checkout@v4
+
+      #----------------------------------------------
+      #       delete poetry.lock file in order to run tests against newer versions
+      #----------------------------------------------      
+      - name: Delete poetry.lock file
+        if: ${{ inputs.delete-poetry-lock }}
+        run: rm ./poetry.lock
 
       #----------------------------------------------
       #       install Python
