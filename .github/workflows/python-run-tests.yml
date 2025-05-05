@@ -85,7 +85,9 @@ jobs:
       #----------------------------------------------      
       - name: Delete poetry.lock file
         if: ${{ inputs.delete-poetry-lock }}
-        run: rm ./poetry.lock
+        run: |
+          rm ./poetry.lock
+          echo "::Warning tile=poetry.lock::Poetry.lock is deleted in this workflow run. You might have to do this too when reproducing build errors."
 
       #----------------------------------------------
       #       install Python
