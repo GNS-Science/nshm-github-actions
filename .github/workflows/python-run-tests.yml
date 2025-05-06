@@ -10,6 +10,7 @@ name: Run Python Tests
 # See default values for examples. This is because reusable workflows cannot take arrays as arguments.
 #
 # Set up the SCHEDULED_GITHUB_SLACK_WEBHOOK secret to receive Slack notification of build failures of scheduled runs.
+# Messages will be posted to the `cwg-scheduled-builds` channel: https://nshmrevisionproject.slack.com/archives/C08QYS2ER9T
  
 
 on:
