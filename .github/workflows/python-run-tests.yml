@@ -8,6 +8,8 @@ name: Run Python Tests
 # 
 # Matrix arrays `operating-systems` and `python-versions` are required and need to be provided as stringified JSON. 
 # See default values for examples. This is because reusable workflows cannot take arrays as arguments.
+#
+# Set up the SCHEDULED_GITHUB_SLACK_WEBHOOK secret to receive Slack notification of build failures of scheduled runs.
  
 
 on:
@@ -173,7 +175,7 @@ jobs:
         uses: slackapi/slack-github-action@v2.0.0
         if: failure() && github.event_name == 'schedule' 
         with:
-          webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+          webhook: ${{ secrets.SCHEDULED_GITHUB_SLACK_WEBHOOK }}
           webhook-type: incoming-webhook
           payload: |
             text: "⚠️*${{ job.status }}*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.event.repository.name }}, ${{ matrix.os }}, Python ${{ matrix.python-version }}>"
