@@ -53,11 +53,6 @@ on:
         required: false
         type: boolean
         default: false
-      slack-error:
-        description: Post error message to Slack on build failure
-        required: false
-        type: boolean
-        default: false
 
 
 jobs:
@@ -172,11 +167,11 @@ jobs:
           fail_ci_if_error: ${{ inputs.fail-on-codecov-error }}
 
       #----------------------------------------------
-      #       Post error msg to Slack
+      #       Post error msg to Slack for failed scheduled builds
       #----------------------------------------------        
       - name: Post a Slack message if build failed
         uses: slackapi/slack-github-action@v2.0.0
-        if: failure()
+        if: failure() && github.event_name == 'schedule' 
         with:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           webhook-type: incoming-webhook

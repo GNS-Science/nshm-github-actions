@@ -17,5 +17,4 @@ jobs:
       python-versions:  "['3.10']" # "['3.9', '3.10', '3.11']"
       working-directory: samplePythonProject
       fail-on-codecov-error: false
-      slack-error: true
     secrets: inherit
