@@ -181,4 +181,4 @@ jobs:
           webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
           webhook-type: incoming-webhook
           payload: |
-            text: "⚠️*${{ job.status }}*\n[${{ github.event.repository.name }}, ${{ matrix.os }}, Python ${{ matrix.python-version }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}/job/${{ github.job }})"
+            text: "⚠️*${{ job.status }}*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.event.repository.name }}, ${{ matrix.os }}, Python ${{ matrix.python-version }}>"
