@@ -116,6 +116,7 @@ jobs:
       #----------------------------------------------
       - name: Load cached venv
         id: cached-poetry-dependencies
+        if: !inputs.delete-poetry-lock
         uses: actions/cache@v4
         with:
           path: .venv
@@ -125,7 +126,7 @@ jobs:
       #        install dependencies if cache does not exist
       #----------------------------------------------
       - name: Install dependencies
-        if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+        if: inputs.delete-poetry-lock || steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
         run: 
           poetry install --no-interaction --no-root --with dev --all-extras
 
