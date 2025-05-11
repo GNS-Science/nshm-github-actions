@@ -116,7 +116,7 @@ jobs:
       #----------------------------------------------
       - name: Load cached venv
         id: cached-poetry-dependencies
-        if: !inputs.delete-poetry-lock
+        if: ${{ ! inputs.delete-poetry-lock }}
         uses: actions/cache@v4
         with:
           path: .venv
