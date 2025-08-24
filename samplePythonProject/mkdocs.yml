@@ -1,0 +1,6 @@
+site_name: nshm-github-actions
+site_url: https://gns-science.github.io/nshm-github-actions
+repo_url: https://github.com/gns-science/nshm-github-actions
+repo_name: gns-science/nshm-github-actions
+nav:
+  - Home: index.md
