@@ -46,7 +46,7 @@ jobs:
             working-directory: ${{ inputs.working-directory }}
     # env:
         # OS: ubuntu-latest
-        # PYTHON: ${{ inputs. python-version }}
+        # PYTHON: ${{ inputs.python-version }}
 
     steps:
         #----------------------------------------------
@@ -60,12 +60,14 @@ jobs:
       - name: Get version from tag
         id: tag_name
         run: |
-          if [ "${inputs.repo-version}" = "none"]; then
-            echo "${inputs.repo-version}"
+          if [ "$VERSION" = "none"]; then
+            echo "$VERSION"
           else
             echo ::set-output name=current_version::${GITHUB_REF#refs/tags/v}
           fi
         shell: bash
+        env:
+            VERSION: ${{ inputs.repo-version }}
 
         #----------------------------------------------
         #       get changelog entry
