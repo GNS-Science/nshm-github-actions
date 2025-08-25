@@ -36,11 +36,11 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
         run:
-            shell: bash
+            # shell: bash
             working-directory: ${{ inputs.working-directory }}
-    env:
-        OS: ubuntu-latest
-        PYTHON: ${{ inputs. python-version }}
+    # env:
+        # OS: ubuntu-latest
+        # PYTHON: ${{ inputs. python-version }}
 
     steps:
 
