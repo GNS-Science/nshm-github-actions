@@ -61,28 +61,24 @@ jobs:
         if: inputs.repo-version == 'none'
         id: tag_name
         run: |
-          echo ::set-output name=current_version::${GITHUB_REF#refs/tags/v}
+          if [ "${inputs.repo-version}" = "none"]; then
+            echo "${inputs.repo-version}"
+          else
+            echo ::set-output name=current_version::${GITHUB_REF#refs/tags/v}
         shell: bash
-
-      - name: Otherway
-        id: foo
-        if: inputs.repo-version != 'none'
-        id: tag_name
-        run: |
-          echo ::set-output name=current_version::${GITHUB_REF#refs/tags/v}
-        shell: bash
-
 
         #----------------------------------------------
         #       get changelog entry
         #----------------------------------------------
       - name: Get Changelog Entry
         id: changelog_reader
+        if: inputs.repo-version == 'none'
         uses: GNS-Science/changelog-reader-action@master
         with:
           validation_depth: 10
           version: ${{ steps.tag_name.outputs.current_version }}
           path: ${{ inputs.working-directory }}/CHANGELOG.md
+
 
         #----------------------------------------------
         #       setup python
