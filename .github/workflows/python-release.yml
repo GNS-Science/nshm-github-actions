@@ -164,6 +164,7 @@ jobs:
         # publish to PyPI
         #----------------------------------------------
       - name: publish to PyPI
+        if: ${{ inputs.repo-version == 'none' }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
