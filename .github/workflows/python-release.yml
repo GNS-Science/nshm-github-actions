@@ -63,7 +63,7 @@ jobs:
           if [ "$VERSION" = "none"]; then
             echo ::set-output name=current_version::${GITHUB_REF#refs/tags/v}
           else
-            echo "$VERSION"
+            echo ::set-output name=current_version "$VERSION"
           fi
         shell: bash
         env:
