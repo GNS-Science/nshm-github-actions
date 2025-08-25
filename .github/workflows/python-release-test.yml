@@ -19,5 +19,6 @@ jobs:
     with:
       python-version:  '3.10'
       working-directory: samplePythonProject
+      repo-version: '0.1.0'
     secrets: inherit
 
