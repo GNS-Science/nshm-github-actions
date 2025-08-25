@@ -69,6 +69,13 @@ jobs:
         env:
             VERSION: ${{ inputs.repo-version }}
 
+      - name: test version
+        id: test_version
+        run: |
+           echo "$VERSION"
+        env:
+            VERSION: ${{ steps.tag_name.outputs.current_version }}
+
         #----------------------------------------------
         #       get changelog entry
         #----------------------------------------------
