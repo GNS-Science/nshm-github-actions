@@ -149,7 +149,7 @@ jobs:
         # create GitHub release
         #----------------------------------------------
       - name: create github release
-        if: ${{ inputs.repo-version }} == 'none'
+        if: ${{ inputs.repo-version == 'none' }}
         id: create_release
         uses: GNS-Science/action-gh-release@master
         env:
