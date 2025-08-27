@@ -32,6 +32,7 @@ runs:
     #----------------------------------------------      
     - name: Delete poetry.lock file
       if: ${{ inputs.delete-poetry-lock }}
+      shell: bash
       run: |
         rm ./poetry.lock
         echo "::Warning tile=poetry.lock::Poetry.lock is deleted in this workflow run. You might have to do this too when reproducing build errors."
@@ -40,6 +41,7 @@ runs:
     #       install Python
     #----------------------------------------------
     - uses: actions/setup-python@v5
+      shell: bash
       id: pythonInstallStep
       with:
         python-version: ${{ inputs.python-version }}
@@ -48,6 +50,7 @@ runs:
     #       install Poetry
     #----------------------------------------------
     - name: Install and configure Poetry
+      shell: bash
       uses: GNS-Science/install-poetry@main
       with:
         version: ${{ inputs.poetry-version }}
@@ -60,6 +63,7 @@ runs:
     #----------------------------------------------
     - name: Load cached venv
       id: cached-poetry-dependencies
+      shell: bash
       if: ${{ ! inputs.delete-poetry-lock }}
       uses: actions/cache@v4
       with:
@@ -70,6 +74,7 @@ runs:
     #        install dependencies if cache does not exist
     #----------------------------------------------
     - name: Install dependencies
+      shell: bash
       if: inputs.delete-poetry-lock || steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
       run: 
         poetry install --no-interaction --no-root --with dev --all-extras
