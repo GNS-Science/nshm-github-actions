@@ -91,3 +91,5 @@ runs:
       run: |
         cd "${WORKING_DIR}"
         poetry install --no-interaction --no-root --with dev --all-extras
+      env:
+        WORKING_DIR: ${{ inputs.working-directory }}
