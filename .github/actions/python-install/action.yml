@@ -46,8 +46,11 @@ runs:
       if: ${{ inputs.delete-poetry-lock }}
       shell: bash
       run: |
+        cd "${WORKING_DIR}"
         rm ./poetry.lock
         echo "::Warning tile=poetry.lock::Poetry.lock is deleted in this workflow run. You might have to do this too when reproducing build errors."
+      env:
+        WORKING_DIR: ${{ inputs.working-directory }}
 
     #----------------------------------------------
     #       install Python
@@ -76,7 +79,7 @@ runs:
       if: ${{ ! inputs.delete-poetry-lock }}
       uses: actions/cache@v4
       with:
-        path: .venv
+        path: ${{ inputs.working-directory }}/.venv
         key: venv-${{ runner.os }}-${{ steps.pythonInstallStep.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}-python-run-tests
 
     #----------------------------------------------
@@ -85,5 +88,6 @@ runs:
     - name: Install dependencies
       shell: bash
       if: inputs.delete-poetry-lock || steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      run: 
+      run: |
+        cd "${WORKING_DIR}"
         poetry install --no-interaction --no-root --with dev --all-extras
