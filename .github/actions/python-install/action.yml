@@ -1,0 +1,83 @@
+name: Setup Python Venv
+
+# Reusable workflow for Python projects that checks out repo and installs with Poetry
+
+
+inputs:
+  operating-system:
+    description: A string of operating system to use
+    required: true
+    type: string
+  python-version:
+    description: A Python version to use
+    required: true
+    type: string
+  poetry-version:
+    description: The poetry version to use
+    required: false
+    type: string
+  working-directory:
+    description: The working directory
+    required: false
+    type: string
+    default: .
+  delete-poetry-lock:
+    description: Delete poetry lock file in order to test against newer versions
+    required: false
+    type: boolean
+    default: false
+runs:
+  using: "composite"
+  steps:
+
+    #----------------------------------------------
+    #       check out repo
+    #----------------------------------------------
+    - uses: actions/checkout@v4
+
+    #----------------------------------------------
+    #       delete poetry.lock file in order to run tests against newer versions
+    #----------------------------------------------      
+    - name: Delete poetry.lock file
+      if: ${{ inputs.delete-poetry-lock }}
+      run: |
+        rm ./poetry.lock
+        echo "::Warning tile=poetry.lock::Poetry.lock is deleted in this workflow run. You might have to do this too when reproducing build errors."
+
+    #----------------------------------------------
+    #       install Python
+    #----------------------------------------------
+    - uses: actions/setup-python@v5
+      id: pythonInstallStep
+      with:
+        python-version: ${{ inputs.python-version }}
+
+    #----------------------------------------------
+    #       install Poetry
+    #----------------------------------------------
+    - name: Install and configure Poetry
+      uses: GNS-Science/install-poetry@main
+      with:
+        version: ${{ inputs.poetry-version }}
+        virtualenvs-create: true
+        virtualenvs-in-project: true
+        installer-parallel: true
+
+    #----------------------------------------------
+    #       load cached venv if cache exists
+    #----------------------------------------------
+    - name: Load cached venv
+      id: cached-poetry-dependencies
+      if: ${{ ! inputs.delete-poetry-lock }}
+      uses: actions/cache@v4
+      with:
+        path: .venv
+        key: venv-${{ runner.os }}-${{ steps.pythonInstallStep.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}-python-run-tests
+
+    #----------------------------------------------
+    #        install dependencies if cache does not exist
+    #----------------------------------------------
+    - name: Install dependencies
+      if: inputs.delete-poetry-lock || steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
+      run: 
+        poetry install --no-interaction --no-root --with dev --all-extras
