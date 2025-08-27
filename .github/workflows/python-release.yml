@@ -18,6 +18,11 @@ on:
             required: false
             type: string
             default: .
+        timeout-minutes:
+          description: Maximum runtime in minutes
+          required: false
+          type: number
+          default: 10
 
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
@@ -29,14 +34,14 @@ concurrency:
 jobs:
   release:
     runs-on: ubuntu-latest
+    timeout-minutes: $${{ inputs.timeout-minutes }}
     defaults:
         run:
-            # shell: bash
+            shell: bash
             working-directory: ${{ inputs.working-directory }}
-    # env:
-        # OS: ubuntu-latest
-        # PYTHON: ${{ inputs.python-version }}
-
+    env:
+        OS: ubuntu-latest
+        PYTHON: ${{ inputs.python-version }}
     steps:
         #----------------------------------------------
         #       checkout repo
