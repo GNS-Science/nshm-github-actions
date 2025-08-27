@@ -32,7 +32,7 @@ runs:
     #       delete poetry.lock file in order to run tests against newer versions
     #----------------------------------------------
     - name: Delete poetry.lock file
-      if: ${{ inputs.delete-poetry-lock }}
+      if: ${{ inputs.delete-poetry-lock == 'true' }}
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
@@ -63,7 +63,7 @@ runs:
     #----------------------------------------------
     - name: Load cached venv
       id: cached-poetry-dependencies
-      if: ${{ ! inputs.delete-poetry-lock }}
+      if: ${{ inputs.delete-poetry-lock == 'false' }}
       uses: actions/cache@v4
       with:
         path: ${{ inputs.working-directory }}/.venv
