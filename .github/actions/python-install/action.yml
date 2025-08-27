@@ -29,28 +29,15 @@ runs:
 
 
     #----------------------------------------------
-    #       cd into working dir
-    #----------------------------------------------
-    - name: change to working dir
-      shell: bash
-      run: |
-        cd "${WORKING_DIR}"
-      env:
-        WORKING_DIR: ${{ inputs.working-directory }}
-
-
-    #----------------------------------------------
     #       delete poetry.lock file in order to run tests against newer versions
     #----------------------------------------------
     - name: Delete poetry.lock file
       if: ${{ inputs.delete-poetry-lock }}
       shell: bash
+      working-directory: ${{ inputs.working-directory }}
       run: |
-        cd "${WORKING_DIR}"
         rm ./poetry.lock
         echo "::Warning tile=poetry.lock::Poetry.lock is deleted in this workflow run. You might have to do this too when reproducing build errors."
-      env:
-        WORKING_DIR: ${{ inputs.working-directory }}
 
     #----------------------------------------------
     #       install Python
