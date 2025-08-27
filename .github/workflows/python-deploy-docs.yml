@@ -44,6 +44,11 @@ jobs:
 
     steps:
         #----------------------------------------------
+        #       checkout repo
+        #----------------------------------------------
+      - uses: actions/checkout@v4
+
+        #----------------------------------------------
         #       setup python
         #----------------------------------------------
       - uses: actions/setup-python@v5
@@ -60,6 +65,7 @@ jobs:
           virtualenvs-create: true
           virtualenvs-in-project: true
           installer-parallel: true        
+
         #----------------------------------------------
         # build documentation
         #----------------------------------------------
