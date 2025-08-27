@@ -23,8 +23,9 @@ inputs:
     type: boolean
     default: false
 defaults:
-  shell: bash
-  working-directory: ${{ inputs.working-directory }}
+  run:
+    shell: bash
+    working-directory: ${{ inputs.working-directory }}
 runs:
   using: "composite"
   steps:
