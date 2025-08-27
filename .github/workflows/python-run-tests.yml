@@ -81,7 +81,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: install_package
-        uses: ./.github/actions/python-install
+        uses: GNS-Science/nshm-github-actions/.github/actions/python-install@17-python-release
         with:
           python-version: ${{ matrix.python-version }}
           poetry-version: ${{ inputs.poetry-version }}
