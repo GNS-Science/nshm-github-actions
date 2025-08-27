@@ -78,6 +78,8 @@ jobs:
       PYTHON: ${{ matrix.python-version }}
     steps:
 
+      - uses: actions/checkout@v4
+
       - name: install_package
         uses: ./.github/actions/python-install
         with:

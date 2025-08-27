@@ -4,10 +4,6 @@ name: Setup Python Venv
 
 
 inputs:
-  operating-system:
-    description: A string of operating system to use
-    required: true
-    type: string
   python-version:
     description: A Python version to use
     required: true
@@ -29,11 +25,6 @@ inputs:
 runs:
   using: "composite"
   steps:
-
-    #----------------------------------------------
-    #       check out repo
-    #----------------------------------------------
-    - uses: actions/checkout@v4
 
     #----------------------------------------------
     #       delete poetry.lock file in order to run tests against newer versions
