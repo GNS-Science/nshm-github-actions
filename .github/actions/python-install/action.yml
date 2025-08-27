@@ -88,8 +88,6 @@ runs:
     - name: Install dependencies
       shell: bash
       if: inputs.delete-poetry-lock || steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-      run: |
-        cd "${WORKING_DIR}"
+      working-directory: ${{ inputs.working-directory }}
+      run: 
         poetry install --no-interaction --no-root --with dev --all-extras
-      env:
-        WORKING_DIR: ${{ inputs.working-directory }}
