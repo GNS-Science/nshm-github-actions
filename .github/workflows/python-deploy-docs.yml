@@ -49,10 +49,9 @@ jobs:
       - name: install_package
         uses: GNS-Science/nshm-github-actions/.github/actions/python-install@17-python-release
         with:
-          python-version: ${{ matrix.python-version }}
+          python-version: ${{ inputs.python-version }}
           poetry-version: ${{ inputs.poetry-version }}
           working-directory: ${{ inputs.working-directory }}
-          delete-poetry-lock: ${{ inputs.delete-poetry-lock }}
 
         #----------------------------------------------
         # build documentation
