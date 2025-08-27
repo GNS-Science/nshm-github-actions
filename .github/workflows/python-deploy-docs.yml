@@ -1,4 +1,4 @@
-name: Python Release
+name: Python Deploy Docs
 
 on:
   workflow_call:
