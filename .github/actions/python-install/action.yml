@@ -27,9 +27,21 @@ runs:
   using: "composite"
   steps:
 
+
+    #----------------------------------------------
+    #       cd into working dir
+    #----------------------------------------------
+    - name: change to working dir
+      shell: bash
+      run: |
+        cd ${WORKING_DIR}
+      env:
+        WORKING_DIR: $ {{ inputs.working-directory }}
+
+
     #----------------------------------------------
     #       delete poetry.lock file in order to run tests against newer versions
-    #----------------------------------------------      
+    #----------------------------------------------
     - name: Delete poetry.lock file
       if: ${{ inputs.delete-poetry-lock }}
       shell: bash
