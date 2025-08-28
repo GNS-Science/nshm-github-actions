@@ -28,6 +28,11 @@ on:
           required: false
           type: number
           default: 10
+        pypi-publish:
+          description: Publish to PyPI or not
+          required: false
+          type: boolean
+          default: true
 
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
@@ -104,6 +109,7 @@ jobs:
         # publish to PyPI
         #----------------------------------------------
       - name: publish to PyPI
+        if: ${{ inputs.pypi-publish }}
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
           user: __token__
