@@ -2,6 +2,7 @@
     "name": "api_smoke_test",
     "version": "0.0.1",
     "description": "Action to test API deployments",
+    "type": "module",
     "scripts": {
         "build": "npx rollup --config rollup.config.js"
     },
