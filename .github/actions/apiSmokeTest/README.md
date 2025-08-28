@@ -31,7 +31,7 @@ While developing on your branch, go to the [deploy-to-aws.yml workflow](../../wo
 
 ```yaml
       - name: Smoke Test
-        uses: GNS-Science/nshm-github-actions/.github/actions/apiSmokeTest@feature/my-branch-name
+        uses: GNS-Science/nshm-github-actions/.github/actions/apiSmokeTest@my-branch-name
         with:
 ```
 
