@@ -1,5 +1,8 @@
 name: Python Deploy Docs
 
+# Publishes documentation for a python package to GitHub pages. Uses `mkdocs` for building documentation. Would commonly
+# be one of two jobs along with with Python Release Workflow in a repo workflow triggered by e.g. tagging a version.
+
 on:
   workflow_call:
     inputs:
@@ -53,7 +56,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: install_package
-        uses: GNS-Science/nshm-github-actions/.github/actions/python-install@17-python-release
+        uses: GNS-Science/nshm-github-actions/.github/actions/python-install@main
         with:
           python-version: ${{ inputs.python-version }}
           poetry-version: ${{ inputs.poetry-version }}

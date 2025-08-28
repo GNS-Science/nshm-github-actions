@@ -35,7 +35,7 @@ Example use:
 ```yml
 jobs:
   release-and-distribute:
-    uses:  GNS-Science/nshm-github-actions/.github/workflows/python-release.yml@17-python-release
+    uses:  GNS-Science/nshm-github-actions/.github/workflows/python-release.yml@main
     with:
       python-version:  '3.12'
     secrets: inherit
@@ -53,7 +53,7 @@ Example use:
 ```yml
 jobs:
   deploy-docs:
-    uses:  GNS-Science/nshm-github-actions/.github/workflows/python-deploy-docs.yml@17-python-release
+    uses:  GNS-Science/nshm-github-actions/.github/workflows/python-deploy-docs.yml@main
     with:
       python-version:  '3.12'
     secrets: inherit
