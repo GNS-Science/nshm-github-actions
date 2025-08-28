@@ -24,7 +24,7 @@ print(
 api keys:
   TempApiKey-nzshm22-model-graphql-api-test: the-totally-real-api-key Api key until we have an auth function
 endpoints:
-  OPTIONS - https://fu7kuwh.execute-api.ap-southeast-2.amazonaws.com/test/graphql
+  OPTIONS - https://countries.trevorblades.com/graphql
   POST - https://fu7kuwh.execute-api.ap-southeast-2.amazonaws.com/test/graphql
   GET - https://fu7kuwh.execute-api.ap-southeast-2.amazonaws.com/test/graphql
   GET - https://fu7kuwh.execute-api.ap-southeast-2.amazonaws.com/test/graphql/{proxy+}

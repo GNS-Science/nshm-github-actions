@@ -27304,7 +27304,7 @@ async function smokeTest() {
     const result = await response.text();
     coreExports.info("Response: " + result);
 
-    // chenk if response matches the expected regex
+    // check if response matches the expected regex
     if (result.match(expectedRegex)) {
         coreExports.info("Matches: " + expectedRegex);
     } else {

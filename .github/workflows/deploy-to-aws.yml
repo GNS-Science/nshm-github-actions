@@ -61,15 +61,15 @@ on:
         type: boolean
         default: true
       smoketest-url-prod:
-        description: A regex to be used for verifying the result of the smoketest
+        description: Used to overwrite the internal URL for smoke tests
         required: false
         type: string
       smoketest-url-test: 
-        description: A regex to be used for verifying the result of the smoketest
+        description: Used to overwrite the internal URL for smoke tests
         required: false
         type: string
       smoketest-query: 
-        description: A regex to be used for verifying the result of the smoketest
+        description: A GraphQL query to sendto the deployed API as a smoke test
         required: false
         type: string
         default: "query {about}"
@@ -112,7 +112,7 @@ jobs:
           poetry self add poetry-plugin-export
 
       - name: Ensure latest requiremments.txt
-        if: ${{ inputs.docker }}
+        if: ${{ inputs.docker && inputs.python-version != 'None'}}
         run: |
           poetry export --without-hashes --format=requirements.txt > requirements.txt
 
