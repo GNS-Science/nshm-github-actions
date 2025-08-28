@@ -1,4 +1,4 @@
-# Smoke Test Action for API Dpeloyments
+# Smoke Test Action for API Deployments
 
 A GitHub workflow action that extracts access info from the output of the deploy step and sends a sample GraphQL request to the deployed API.
 
