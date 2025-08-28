@@ -1,0 +1,171 @@
+name: Deploy to AWS
+
+# Reusable workflow for Python projects deploy to AWS
+# Deploys with `npm run-script deploy`
+# Any environment variables required to run `npm run-script deploy` must be specified in the AWS_PROD or AWS_TEST environments or at repo level.
+# If using serverless v4, please specify the secret `SERVERLESS_ACCESS_KEY`
+
+
+# required secrets:
+#   - AWS_ACCESS_KEY_ID 
+#   - AWS_SECRET_ACCESS_KEY
+
+# supported secrets for deployment step:
+#   - NZSHM22_TOSHI_API_URL 
+#   - NZSHM22_TOSHI_API_KEY
+#   - NZSHM22_NSHM_MODEL_API_URL
+#   - NZSHM22_NSHM_MODEL_API_KEY
+#   - NZSHM22_KORORAA_API_URL
+#   - NZSHM22_KORORAA_API_KEY
+#   - NZSHM22_SOLVIS_API_URL
+#   - NZSHM22_SOLVIS_API_KEY
+#   - NZSHM22_HAZARD_API_KEY (the URL should be specified as an environment variable)
+#   - SERVERLESS_ACCESS_KEY
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        description: The Python version to use. If set to "None", no python features are installed.
+        required: true
+        type: string
+        default: '3.11'
+      operating-system:
+        description: The operating system to use
+        required: false
+        type: string
+        default: 'ubuntu-latest'
+      node-version:
+        description: The Node version to use
+        required: false
+        type: string
+        default: '22'
+      environment:
+        description: If true, will use AWS_PROD or AWS_TEST environments
+        required: false
+        type: boolean
+        default: false
+      docker:
+        description: If true, prerequisites for a docker deployment are run
+        required: false
+        type: boolean
+        default: false
+      working-directory:
+        description: The working directory
+        required: false
+        type: string
+        default: .
+      aws-login:
+        description: whether to log in to AWS. Should only be false for testing
+        required: false
+        type: boolean
+        default: true
+      smoketest-url-prod:
+        description: Used to overwrite the internal URL for smoke tests
+        required: false
+        type: string
+      smoketest-url-test: 
+        description: Used to overwrite the internal URL for smoke tests
+        required: false
+        type: string
+      smoketest-query: 
+        description: A GraphQL query to sendto the deployed API as a smoke test
+        required: false
+        type: string
+        default: "query {about}"
+      smoketest-expected:
+        description: A regex to be used for verifying the result of the smoketest
+        required: false
+        type: string
+        default: "data.*about.*Hello"
+
+jobs:
+
+  deploy:
+    runs-on: ${{inputs.operating-system}}
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ inputs.working-directory }}
+    environment: ${{ (inputs.environment && ((github.ref == 'refs/heads/main') && 'AWS_PROD' || 'AWS_TEST')) || '' }}
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        if: ${{ inputs.python-version != 'None' }}
+        with:
+          python-version: ${{ inputs.python-version }}
+
+      - name: Install and configure Poetry
+        if: ${{ inputs.python-version != 'None' }}
+        uses: GNS-Science/install-poetry@main
+        with:
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+
+      - name: Install poetry-plugin-export
+        if: ${{ inputs.python-version != 'None' }}
+        run: |
+          poetry self add poetry-plugin-export
+
+      - name: Ensure latest requiremments.txt
+        if: ${{ inputs.docker && inputs.python-version != 'None'}}
+        run: |
+          poetry export --without-hashes --format=requirements.txt > requirements.txt
+
+      - name: Use Node.js ${{ inputs.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          check-latest: true
+          registry-url: https://npm.pkg.github.com/
+          scope: '@gns-science'
+
+      - name: upgrade NPM
+        run: npm install --location=global npm@latest
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: List packages
+        run: npm ls	
+
+      - name: Configure AWS Credentials
+        if: ${{ inputs.aws-login }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID || secrets.AWS_TOSHI_ACCESS_KEY_ID}}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY || secrets.AWS_TOSHI_SECRET_ACCESS_KEY}}
+          aws-region: ap-southeast-2
+
+      - name: Login to ECR
+        if: ${{ inputs.docker }}
+        uses: docker/login-action@v3
+        with:
+          registry: 461564345538.dkr.ecr.ap-southeast-2.amazonaws.com      
+
+      - name: Serverless Deploy
+        env:
+            NZSHM22_KORORAA_API_URL: ${{ secrets.NZSHM22_KORORAA_API_URL }}
+            NZSHM22_KORORAA_API_KEY: ${{ secrets.NZSHM22_KORORAA_API_KEY }}
+            NZSHM22_TOSHI_API_URL: ${{ secrets.NZSHM22_TOSHI_API_URL }}
+            NZSHM22_TOSHI_API_KEY: ${{ secrets.NZSHM22_TOSHI_API_KEY }}
+            NZSHM22_NSHM_MODEL_API_URL: ${{ secrets.NZSHM22_NSHM_MODEL_API_URL }}
+            NZSHM22_NSHM_MODEL_API_KEY: ${{ secrets.NZSHM22_NSHM_MODEL_API_KEY }}
+            NZSHM22_SOLVIS_API_URL: ${{ secrets.NZSHM22_SOLVIS_API_URL }}
+            NZSHM22_SOLVIS_API_KEY: ${{ secrets.NZSHM22_SOLVIS_API_KEY }}
+            NZSHM22_HAZARD_API_KEY: ${{ secrets.NZSHM22_HAZARD_API_KEY }}
+            SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+        run: |
+          STAGE=${{ (github.ref == 'refs/heads/main') && 'prod' || 'test'}} REGION=ap-southeast-2 npm run-script deploy | tee deploy.out
+
+      - name: Smoke Test
+        uses: GNS-Science/nshm-github-actions/.github/actions/apiSmokeTest@main
+        with:
+            query: ${{ inputs.smoketest-query }}
+            expected-regex: ${{ inputs.smoketest-expected }}
+            working-directory: ${{ inputs.working-directory}}
+            url: ${{ (github.ref == 'refs/heads/main') && inputs.smoketest-url-prod || inputs.smoketest-url-test }}

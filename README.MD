@@ -58,3 +58,20 @@ jobs:
       python-version:  '3.12'
     secrets: inherit
 ```
+
+## API Deployment
+
+[deploy-to-aws.yml](./.github/workflows/deploy-to-aws.yml) deploys Python and JS APIs to AWS.
+
+Example use:
+
+```yaml
+  call-deploy-workflow:
+    needs: call-test-workflow
+    uses: GNS-Science/nshm-github-actions/.github/workflows/deploy-to-aws.yml@main
+    with:
+      python-version: '3.10'
+    secrets: inherit
+```
+
+See [deploy-to-aws.yml](./.github/workflows/deploy-to-aws.yml) for a list of supported and required list of secrets and environment variables as well as workflow inputs.

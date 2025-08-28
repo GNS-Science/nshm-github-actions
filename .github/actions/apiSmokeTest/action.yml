@@ -1,0 +1,25 @@
+name: API Deployment Smoke Test
+description: Extracts access info from deploy.out and fires off a sample GraphQL query
+
+inputs:
+
+  query:
+    description: The GraphQL query to send
+    required: true
+    type: string
+    default: "query {about}"
+  expected-regex:
+    description: A regex for verifying the response from the deployed API
+    required: true
+    default: "data.*about.*Hello"
+  working-directory:
+    description: The working-directory
+    required: true
+    default: .
+  url:
+    description: Overwrites URL in case the API cannot be reached through the internal URL (this is the case for our apigw APIs)
+    required: false
+
+runs:
+  using: node20
+  main: dist/index.js
