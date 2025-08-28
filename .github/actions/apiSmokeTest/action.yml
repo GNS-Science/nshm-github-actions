@@ -1,0 +1,25 @@
+name: Hello World
+description: Greet someone and record the time
+
+inputs:
+
+  query:
+    description: The GraphQL query to send
+    required: true
+    type: string
+    default: "query {about}"
+  expected-regex:
+    description: A regex for verifying the response from the deployed API
+    required: true
+    default: "data.*about.*Hello"
+  working-directory:
+    description: The working-directory
+    required: true
+    default: .
+  url:
+    description: Overwrites URL in case the API cannot be reached through the internal URL
+    required: false
+
+runs:
+  using: node20
+  main: dist/index.js
