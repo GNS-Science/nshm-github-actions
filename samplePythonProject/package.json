@@ -3,10 +3,8 @@
   "version": "0.0.1",
   "description": "Used for testing workflows.",
   "scripts": {
-    "deploy": "poetry run python deploy_check.py --stage ${STAGE} --region ${REGION}",
+    "deploy": "poetry run python deploy_check.py --stage ${STAGE} --region ${REGION}"
   },
-  "dependencies": {
-  },
-  "devDependencies": {
-  }
+  "dependencies": {},
+  "devDependencies": {}
 }
