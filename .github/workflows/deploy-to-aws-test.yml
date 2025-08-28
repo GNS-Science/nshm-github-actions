@@ -23,5 +23,5 @@ jobs:
       smoketest-url-prod: https://countries.trevorblades.com/graphql
       smoketest-url-test: https://countries.trevorblades.com/graphql
       smoketest-query: 'query Query {country(code: "NZ") {capital}}'
-      smoketest-result: 'Wellington'
+      smoketest-expected: 'Wellington'
     secrets: inherit
