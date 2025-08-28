@@ -1,0 +1,111 @@
+name: Python Release
+
+# Creates a GitHub release and publishes the package to PyPI. Would commonly be one of two jobs along
+# with with Python Deploy Docs in a repo workflow triggered by e.g. tagging a version.
+#
+# Requires the secret `PYPI_API_TOKEN`.
+
+on:
+  workflow_call:
+    inputs:
+        python-version:
+            description: The python version to use
+            required: true
+            type: string
+            default: "3.10"
+        poetry-version:
+            description: The poetry version to use
+            required: false
+            type: string
+            default: "latest"
+        working-directory:
+            description: The working directory
+            required: false
+            type: string
+            default: .
+        timeout-minutes:
+          description: Maximum runtime in minutes
+          required: false
+          type: number
+          default: 10
+
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    defaults:
+        run:
+            shell: bash
+            working-directory: ${{ inputs.working-directory }}
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - name: install_package
+        uses: GNS-Science/nshm-github-actions/.github/actions/python-install@main
+        with:
+          python-version: ${{ inputs.python-version }}
+          poetry-version: ${{ inputs.poetry-version }}
+          working-directory: ${{ inputs.working-directory }}
+
+        #----------------------------------------------
+        #       get version
+        #----------------------------------------------
+      - name: Get version from tag
+        id: tag_name
+        run: |
+          echo name=current_version::${GITHUB_REF#refs/tags/v} >> "$GITHUB_OUTPUT"
+        shell: bash
+
+        #----------------------------------------------
+        #       get changelog entry
+        #----------------------------------------------
+      - name: Get Changelog Entry
+        id: changelog_reader
+        uses: GNS-Science/changelog-reader-action@master
+        with:
+          validation_depth: 10
+          version: ${{ steps.tag_name.outputs.current_version }}
+          path: ${{ inputs.working-directory }}/CHANGELOG.md
+  
+        #----------------------------------------------
+        # build wheels and tarball
+        #----------------------------------------------
+      - name: Build wheels and source tarball
+        run: >-
+          poetry build
+
+      - name: show temporary files
+        run: >-
+          ls -l
+
+        #----------------------------------------------
+        # create GitHub release
+        #----------------------------------------------
+      - name: create github release
+        id: create_release
+        uses: GNS-Science/action-gh-release@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          body: ${{ steps.changelog_reader.outputs.changes }}
+          files: ${{ inputs.working-directory }}/dist/*.whl
+          draft: false
+          prerelease: false
+ 
+        #----------------------------------------------
+        # publish to PyPI
+        #----------------------------------------------
+      - name: publish to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          user: __token__
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          skip-existing: true

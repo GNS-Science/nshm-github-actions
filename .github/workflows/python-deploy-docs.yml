@@ -1,0 +1,86 @@
+name: Python Deploy Docs
+
+# Publishes documentation for a python package to GitHub pages. Uses `mkdocs` for building documentation. Would commonly
+# be one of two jobs along with with Python Release Workflow in a repo workflow triggered by e.g. tagging a version.
+
+on:
+  workflow_call:
+    inputs:
+        python-version:
+            description: The python version to use
+            required: true
+            type: string
+            default: "3.10"
+        poetry-version:
+            description: The poetry version to use
+            required: false
+            type: string
+            default: "latest"
+        working-directory:
+            description: The working directory
+            required: false
+            type: string
+            default: .
+        timeout-minutes:
+          description: Maximum runtime in minutes
+          required: false
+          type: number
+          default: 10
+
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    environment:
+        name: github-pages
+        url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+    defaults:
+        run:
+            working-directory: ${{ inputs.working-directory }}
+
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - name: install_package
+        uses: GNS-Science/nshm-github-actions/.github/actions/python-install@main
+        with:
+          python-version: ${{ inputs.python-version }}
+          poetry-version: ${{ inputs.poetry-version }}
+          working-directory: ${{ inputs.working-directory }}
+
+        #----------------------------------------------
+        # build documentation
+        #----------------------------------------------
+      - name: build documentation
+        run: |
+          poetry run mkdocs build
+          
+        #----------------------------------------------
+        # package and upload artifact for deployment to GitHub Pages 
+        #----------------------------------------------
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ${{ inputs.working-directory }}/site
+
+
+        #----------------------------------------------
+        # deploy page
+        #----------------------------------------------
+      - name: Deploy Docs to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
