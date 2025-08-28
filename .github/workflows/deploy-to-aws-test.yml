@@ -8,9 +8,9 @@ on:
   # schedule:
   #   - cron: '5 3 * * 0' # At 03:05 on Sunday
   push:
-    branches: [main, pre-release]
+    branches: [main]
   pull_request:
-    branches: [main, pre-release]    
+    branches: [main]    
 
 jobs:
   call-test-workflow:
@@ -19,6 +19,7 @@ jobs:
       python-version:  3.11
       working-directory: samplePythonProject
       aws-login: false
+      # a public and free API that returns country data
       smoketest-url-prod: https://countries.trevorblades.com/graphql
       smoketest-url-test: https://countries.trevorblades.com/graphql
       smoketest-query: 'query Query {country(code: "NZ") {capital}}'

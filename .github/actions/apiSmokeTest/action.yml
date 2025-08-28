@@ -1,5 +1,5 @@
-name: Hello World
-description: Greet someone and record the time
+name: API Deployment Smoke Test
+description: Extracts access info from deploy.out and fires off a sample GraphQL query
 
 inputs:
 
@@ -17,7 +17,7 @@ inputs:
     required: true
     default: .
   url:
-    description: Overwrites URL in case the API cannot be reached through the internal URL
+    description: Overwrites URL in case the API cannot be reached through the internal URL (this is the case for our apigw APIs)
     required: false
 
 runs:

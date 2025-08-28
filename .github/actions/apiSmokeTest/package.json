@@ -1,0 +1,16 @@
+{
+    "name": "api_smoke_test",
+    "version": "0.0.1",
+    "description": "Action to test API deployments",
+    "scripts": {
+        "build": "npx rollup --config rollup.config.js"
+    },
+    "dependencies": {
+        "@actions/core": "^1.11.1"
+    },
+    "devDependencies": {
+        "@rollup/plugin-commonjs": "^28.0.6",
+        "@rollup/plugin-node-resolve": "^16.0.1",
+        "rollup": "^4.49.0"
+    }
+}
