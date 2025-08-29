@@ -164,7 +164,7 @@ jobs:
           STAGE=${{ (github.ref == 'refs/heads/main') && 'prod' || 'test'}} REGION=ap-southeast-2 npm run-script deploy | tee deploy.out
 
       - name: Smoke Test
-        uses: GNS-Science/nshm-github-actions/.github/actions/apiSmokeTest@chore/16-more-shared-deployment
+        uses: GNS-Science/nshm-github-actions/.github/actions/apiSmokeTest@main
         with:
             query: ${{ inputs.smoketest-query }}
             expected-regex: ${{ inputs.smoketest-expected }}
