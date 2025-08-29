@@ -27271,7 +27271,9 @@ async function smokeTest() {
     // open deploy.out and extract API URL and API key
     const path = !workingDir || workingDir == '.' || workingDir == '' ? '' : '/' + workingDir;
     const data = fs.readFileSync(process.cwd() + path + '/deploy.out', 'utf8');
+    coreExports.info("data:");
     coreExports.info(data);
+    coreExports.info("data is " + data.length + " characters");
     if (!hasValue(data)) {
         coreExports.error("Failed to read deploy.out");
     }
