@@ -27322,9 +27322,8 @@ async function smokeTest() {
     coreExports.info("Response: " + result);
 
     const resultJson = JSON.parse(result);
-    if (resultJson.error) {
-        coreExports.error("Response has error: " + JSON.stringify(resultJson.error));
-        coreExports.setFailed("API response had error");
+    if (resultJson.errors) {
+        coreExports.setFailed("API response contains error");
     }
 
     // check if response matches the expected regex
@@ -27341,8 +27340,6 @@ try {
     await smokeTest();
 } catch (error) {
     coreExports.info(error);
-    console.log(error);
-    coreExports.error(error);
     coreExports.setFailed("Smoke test failed: " + error.message);
 }
 //# sourceMappingURL=index.js.map

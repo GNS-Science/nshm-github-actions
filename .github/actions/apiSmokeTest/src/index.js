@@ -94,7 +94,5 @@ try {
     await smokeTest();
 } catch (error) {
     core.info(error);
-    console.log(error);
-    core.error(error);
     core.setFailed("Smoke test failed: " + error.message);
 }
