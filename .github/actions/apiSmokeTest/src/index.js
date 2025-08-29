@@ -1,5 +1,4 @@
 import * as core from "@actions/core";
-import { log } from "node:console";
 import fs from "node:fs";
 
 // find the first URL
@@ -25,9 +24,6 @@ async function smokeTest() {
     // open deploy.out and extract API URL and API key
     const path = !workingDir || workingDir == '.' || workingDir == '' ? '' : '/' + workingDir;
     const data = fs.readFileSync(process.cwd() + path + '/deploy.out', 'utf8');
-    core.info("data:")
-    core.info(data);
-    core.info("data is " + data.length + " characters");
     if (!hasValue(data)) {
         core.error("Failed to read deploy.out");
     }
@@ -71,12 +67,19 @@ async function smokeTest() {
         body: JSON.stringify({ query })
     })
 
+    const result = await response.text()
+
     if (!response.ok) {
-        core.setFailed(`Smoke test response: ${response.status}, ${await response.text()}`);
+        core.setFailed(`Smoke test response: ${response.status}, ${result}`);
         return;
     }
-    const result = await response.text()
     core.info("Response: " + result)
+
+    const resultJson = JSON.parse(result);
+    if (resultJson.error) {
+        core.error("Response has error: " + JSON.stringify(resultJson.error));
+        core.setFailed("API response had error");
+    }
 
     // check if response matches the expected regex
     if (result.match(expectedRegex)) {
@@ -85,6 +88,7 @@ async function smokeTest() {
         core.error("Does not match " + expectedRegex);
         core.setFailed("Smoke test does not return expected result");
     }
+
 }
 
 try {

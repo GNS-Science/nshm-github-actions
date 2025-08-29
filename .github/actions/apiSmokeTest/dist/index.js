@@ -27,7 +27,6 @@ import require$$6 from 'string_decoder';
 import require$$0$9 from 'diagnostics_channel';
 import require$$2$2 from 'child_process';
 import require$$6$1 from 'timers';
-import 'node:console';
 import fs from 'node:fs';
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
@@ -27271,9 +27270,6 @@ async function smokeTest() {
     // open deploy.out and extract API URL and API key
     const path = !workingDir || workingDir == '.' || workingDir == '' ? '' : '/' + workingDir;
     const data = fs.readFileSync(process.cwd() + path + '/deploy.out', 'utf8');
-    coreExports.info("data:");
-    coreExports.info(data);
-    coreExports.info("data is " + data.length + " characters");
     if (!hasValue(data)) {
         coreExports.error("Failed to read deploy.out");
     }
@@ -27317,12 +27313,19 @@ async function smokeTest() {
         body: JSON.stringify({ query })
     });
 
+    const result = await response.text();
+
     if (!response.ok) {
-        coreExports.setFailed(`Smoke test response: ${response.status}, ${await response.text()}`);
+        coreExports.setFailed(`Smoke test response: ${response.status}, ${result}`);
         return;
     }
-    const result = await response.text();
     coreExports.info("Response: " + result);
+
+    const resultJson = JSON.parse(result);
+    if (resultJson.error) {
+        coreExports.error("Response has error: " + JSON.stringify(resultJson.error));
+        coreExports.setFailed("API response had error");
+    }
 
     // check if response matches the expected regex
     if (result.match(expectedRegex)) {
@@ -27331,6 +27334,7 @@ async function smokeTest() {
         coreExports.error("Does not match " + expectedRegex);
         coreExports.setFailed("Smoke test does not return expected result");
     }
+
 }
 
 try {
