@@ -76,9 +76,8 @@ async function smokeTest() {
     core.info("Response: " + result)
 
     const resultJson = JSON.parse(result);
-    if (resultJson.error) {
-        core.error("Response has error: " + JSON.stringify(resultJson.error));
-        core.setFailed("API response had error");
+    if (resultJson.errors) {
+        core.setFailed("API response contains error");
     }
 
     // check if response matches the expected regex
