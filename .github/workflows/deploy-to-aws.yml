@@ -161,7 +161,7 @@ jobs:
             NZSHM22_HAZARD_API_URL: ${{ env.NZSHM22_HAZARD_API_URL }}
             SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
         run: |
-          STAGE=${{ (github.ref == 'refs/heads/main') && 'prod' || 'test'}} REGION=ap-southeast-2 stdbuf -oL -eL npm run-script deploy 2>&1 | tee deploy.out
+          STAGE=${{ (github.ref == 'refs/heads/main') && 'prod' || 'test'}} REGION=ap-southeast-2 npm run-script deploy 2>&1 | tee deploy.out
 
       - name: Smoke Test
         uses: GNS-Science/nshm-github-actions/.github/actions/apiSmokeTest@chore/16-more-shared-deployment
