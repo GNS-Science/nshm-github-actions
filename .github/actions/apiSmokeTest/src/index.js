@@ -24,8 +24,19 @@ async function smokeTest() {
     // open deploy.out and extract API URL and API key
     const path = !workingDir || workingDir == '.' || workingDir == '' ? '' : '/' + workingDir;
     const data = fs.readFileSync(process.cwd() + path + '/deploy.out', 'utf8');
-    let url = altUrl || data.match(urlRegex)[0];
-    const key = data.match(keyRegex)[0];
+    if (!hasValue(data)) {
+        core.error("Failed to read deploy.out");
+    }
+    const urlMatch = data.match(urlRegex);
+    if (!urlMatch) {
+        core.error("Could not find URL")
+    }
+    let url = altUrl || urlMatch[0];
+    const keyMatch = data.match(keyRegex);
+    if (!keyMatch) {
+        core.error("Could not find key")
+    }
+    const key = keyMatch[0];
 
     if (!hasValue(url)) {
         core.setFailed("Could not extract API URL from deployment output");
@@ -56,12 +67,18 @@ async function smokeTest() {
         body: JSON.stringify({ query })
     })
 
+    const result = await response.text()
+
     if (!response.ok) {
-        core.setFailed(`Smoke test response: ${response.status}, ${await response.text()}`);
+        core.setFailed(`Smoke test response: ${response.status}, ${result}`);
         return;
     }
-    const result = await response.text()
     core.info("Response: " + result)
+
+    const resultJson = JSON.parse(result);
+    if (resultJson.errors) {
+        core.setFailed("API response contains error");
+    }
 
     // check if response matches the expected regex
     if (result.match(expectedRegex)) {
@@ -70,10 +87,12 @@ async function smokeTest() {
         core.error("Does not match " + expectedRegex);
         core.setFailed("Smoke test does not return expected result");
     }
+
 }
 
 try {
     await smokeTest();
 } catch (error) {
+    core.info(error);
     core.setFailed("Smoke test failed: " + error.message);
 }
