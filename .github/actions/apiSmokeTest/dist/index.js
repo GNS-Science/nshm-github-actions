@@ -27321,6 +27321,7 @@ async function smokeTest() {
 try {
     await smokeTest();
 } catch (error) {
+    coreExports.error(error);
     coreExports.setFailed("Smoke test failed: " + error.message);
 }
 //# sourceMappingURL=index.js.map

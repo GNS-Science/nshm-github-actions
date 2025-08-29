@@ -75,5 +75,6 @@ async function smokeTest() {
 try {
     await smokeTest();
 } catch (error) {
+    core.error(error);
     core.setFailed("Smoke test failed: " + error.message);
 }
