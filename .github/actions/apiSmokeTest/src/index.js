@@ -25,8 +25,20 @@ async function smokeTest() {
     // open deploy.out and extract API URL and API key
     const path = !workingDir || workingDir == '.' || workingDir == '' ? '' : '/' + workingDir;
     const data = fs.readFileSync(process.cwd() + path + '/deploy.out', 'utf8');
-    let url = altUrl || data.match(urlRegex)[0];
-    const key = data.match(keyRegex)[0];
+    core.info(data);
+    if (!hasValue(data)) {
+        core.error("Failed to read deploy.out");
+    }
+    const urlMatch = data.match(urlRegex);
+    if (!urlMatch) {
+        core.error("Could not find URL")
+    }
+    let url = altUrl || urlMatch[0];
+    const keyMatch = data.match(keyRegex);
+    if (!keyMatch) {
+        core.error("Could not find key")
+    }
+    const key = keyMatch[0];
 
     if (!hasValue(url)) {
         core.setFailed("Could not extract API URL from deployment output");
