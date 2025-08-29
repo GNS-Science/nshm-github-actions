@@ -27270,7 +27270,7 @@ async function smokeTest() {
     // open deploy.out and extract API URL and API key
     const path = !workingDir || workingDir == '.' || workingDir == '' ? '' : '/' + workingDir;
     const data = fs.readFileSync(process.cwd() + path + '/deploy.out', 'utf8');
-    const url = altUrl || data.match(urlRegex)[0];
+    let url = altUrl || data.match(urlRegex)[0];
     const key = data.match(keyRegex)[0];
 
     if (!hasValue(url)) {
@@ -27281,6 +27281,11 @@ async function smokeTest() {
     if (!hasValue(key)) {
         coreExports.setFailed("Could not extract API key from deployment output");
         return;
+    }
+
+    if (url.endsWith("{any+}")) {
+        coreExports.info("Url needs to be adjusted: " + url);
+        url = url.replace("{any+}", "graphql");
     }
 
     coreExports.info("URL: " + url);
