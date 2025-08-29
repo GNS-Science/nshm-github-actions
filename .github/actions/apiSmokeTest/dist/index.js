@@ -27,6 +27,7 @@ import require$$6 from 'string_decoder';
 import require$$0$9 from 'diagnostics_channel';
 import require$$2$2 from 'child_process';
 import require$$6$1 from 'timers';
+import 'node:console';
 import fs from 'node:fs';
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
@@ -27321,6 +27322,8 @@ async function smokeTest() {
 try {
     await smokeTest();
 } catch (error) {
+    coreExports.info(error);
+    console.log(error);
     coreExports.error(error);
     coreExports.setFailed("Smoke test failed: " + error.message);
 }

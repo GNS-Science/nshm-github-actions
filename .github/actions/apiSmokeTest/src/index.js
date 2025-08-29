@@ -1,4 +1,5 @@
 import * as core from "@actions/core";
+import { log } from "node:console";
 import fs from "node:fs";
 
 // find the first URL
@@ -75,6 +76,8 @@ async function smokeTest() {
 try {
     await smokeTest();
 } catch (error) {
+    core.info(error);
+    console.log(error);
     core.error(error);
     core.setFailed("Smoke test failed: " + error.message);
 }
