@@ -27304,7 +27304,7 @@ async function smokeTest() {
     coreExports.info("Query: " + query);
 
     // send sample query to the API
-    const response = await fetch(url, {
+    let response = await fetch(url, {
         method: "POST",
         headers: {
             "content-type": "application/json",
@@ -27312,6 +27312,19 @@ async function smokeTest() {
         },
         body: JSON.stringify({ query })
     });
+
+    // This can happen if starting up the API takes longer, for example if we use a Docker image.
+    if (response.status == 504) {
+        coreExports.info("Gateway timeout, will try again");
+        response = await fetch(url, {
+            method: "POST",
+            headers: {
+                "content-type": "application/json",
+                "x-api-key": key
+            },
+            body: JSON.stringify({ query })
+        });
+    }
 
     const result = await response.text();
 
