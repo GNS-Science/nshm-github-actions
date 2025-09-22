@@ -132,18 +132,18 @@ jobs:
 
       - name: Setup NPM package manager, install and list dependencies
         if: ${{ inputs.node-pkg-manager == 'npm' }}
-        run:
-          npm install --location=global npm@latest \
-          npm install \
+        run: |
+          npm install --location=global npm@latest
+          npm install
           npm ls
         env:
           NODE_RUN_SCRIPT: "npm run-script"
 
       - name: Setup Yarn2 package manager, install and list dependencies
         if: ${{ inputs.node-pkg-manager == 'yarn2' }}
-        run:
-          corepack enable \
-          yarn set version berry \
+        run: |
+          corepack enable
+          yarn set version berry
           yarn install
         env:
           NODE_RUN_SCRIPT: "yarn run"
@@ -176,7 +176,7 @@ jobs:
             NZSHM22_HAZARD_API_URL: ${{ vars.NZSHM22_HAZARD_API_URL }}
             SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
         run: |
-          STAGE=${{ (github.ref == 'refs/heads/main') && 'prod' || 'test'}} REGION=ap-southeast-2 ${{ NODE_RUN_SCRIPT }} deploy 2>&1 | tee deploy.out
+          STAGE=${{ (github.ref == 'refs/heads/main') && 'prod' || 'test'}} REGION=ap-southeast-2 ${{ env.NODE_RUN_SCRIPT }} deploy 2>&1 | tee deploy.out
 
       - name: Smoke Test
         uses: GNS-Science/nshm-github-actions/.github/actions/apiSmokeTest@main
