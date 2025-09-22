@@ -1,8 +1,9 @@
 name: Deploy to AWS
 
 # Reusable workflow for Python projects deploy to AWS
-# Deploys with `npm run-script deploy`
-# Any environment variables required to run `npm run-script deploy` must be specified in the AWS_PROD or AWS_TEST environments or at repo level.
+# supports `npm` or `yarn2` package manager ($PakMan)
+# Deploys with `$PakMan run-script deploy`
+# Any environment variables required to run `$PakMan run-script deploy` must be specified in the AWS_PROD or AWS_TEST environments or at repo level.
 # If using serverless v4, please specify the secret `SERVERLESS_ACCESS_KEY`
 
 
@@ -45,6 +46,11 @@ on:
         required: false
         type: boolean
         default: false
+      node-pkg-manager:
+        description: The node package manager to use, either `npm` or `yarn2`
+        required: true
+        type: string
+        default: 'npm'
       docker:
         description: If true, prerequisites for a docker deployment are run
         required: false
@@ -124,14 +130,23 @@ jobs:
           registry-url: https://npm.pkg.github.com/
           scope: '@gns-science'
 
-      - name: upgrade NPM
-        run: npm install --location=global npm@latest
+      - name: Setup NPM package manager, install and list dependencies
+        if: ${{ inputs.node-pkg-manager == 'npm' }}
+        run:
+          npm install --location=global npm@latest \
+          npm install \
+          npm ls
+        env:
+          NODE_RUN_SCRIPT: "npm run-script"
 
-      - name: Install Dependencies
-        run: npm install
-
-      - name: List packages
-        run: npm ls	
+      - name: Setup Yarn2 package manager, install and list dependencies
+        if: ${{ inputs.node-pkg-manager == 'yarn2' }}
+        run:
+          corepack enable \
+          yarn set version berry \
+          yarn install
+        env:
+          NODE_RUN_SCRIPT: "yarn run"
 
       - name: Configure AWS Credentials
         if: ${{ inputs.aws-login }}
@@ -161,7 +176,7 @@ jobs:
             NZSHM22_HAZARD_API_URL: ${{ vars.NZSHM22_HAZARD_API_URL }}
             SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
         run: |
-          STAGE=${{ (github.ref == 'refs/heads/main') && 'prod' || 'test'}} REGION=ap-southeast-2 npm run-script deploy 2>&1 | tee deploy.out
+          STAGE=${{ (github.ref == 'refs/heads/main') && 'prod' || 'test'}} REGION=ap-southeast-2 ${{ NODE_RUN_SCRIPT }} deploy 2>&1 | tee deploy.out
 
       - name: Smoke Test
         uses: GNS-Science/nshm-github-actions/.github/actions/apiSmokeTest@main
