@@ -1,8 +1,9 @@
 name: Deploy to AWS
 
 # Reusable workflow for Python projects deploy to AWS
-# Deploys with `npm run-script deploy`
-# Any environment variables required to run `npm run-script deploy` must be specified in the AWS_PROD or AWS_TEST environments or at repo level.
+# supports `npm` or `yarn2` package manager ($PakMan)
+# Deploys with `$PakMan run-script deploy`
+# Any environment variables required to run `$PakMan run-script deploy` must be specified in the AWS_PROD or AWS_TEST environments or at repo level.
 # If using serverless v4, please specify the secret `SERVERLESS_ACCESS_KEY`
 
 
@@ -45,6 +46,11 @@ on:
         required: false
         type: boolean
         default: false
+      node-pkg-manager:
+        description: The node package manager to use, either `npm` or `yarn2`
+        required: true
+        type: string
+        default: 'npm'
       docker:
         description: If true, prerequisites for a docker deployment are run
         required: false
@@ -88,6 +94,18 @@ jobs:
         shell: bash
         working-directory: ${{ inputs.working-directory }}
     environment: ${{ (inputs.environment && ((github.ref == 'refs/heads/main') && 'AWS_PROD' || 'AWS_TEST')) || '' }}
+    env:
+        NZSHM22_KORORAA_API_URL: ${{ secrets.NZSHM22_KORORAA_API_URL }}
+        NZSHM22_KORORAA_API_KEY: ${{ secrets.NZSHM22_KORORAA_API_KEY }}
+        NZSHM22_TOSHI_API_URL: ${{ secrets.NZSHM22_TOSHI_API_URL }}
+        NZSHM22_TOSHI_API_KEY: ${{ secrets.NZSHM22_TOSHI_API_KEY }}
+        NZSHM22_NSHM_MODEL_API_URL: ${{ secrets.NZSHM22_NSHM_MODEL_API_URL }}
+        NZSHM22_NSHM_MODEL_API_KEY: ${{ secrets.NZSHM22_NSHM_MODEL_API_KEY }}
+        NZSHM22_SOLVIS_API_URL: ${{ secrets.NZSHM22_SOLVIS_API_URL }}
+        NZSHM22_SOLVIS_API_KEY: ${{ secrets.NZSHM22_SOLVIS_API_KEY }}
+        NZSHM22_HAZARD_API_KEY: ${{ secrets.NZSHM22_HAZARD_API_KEY }}
+        NZSHM22_HAZARD_API_URL: ${{ vars.NZSHM22_HAZARD_API_URL }}
+        SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
 
     steps:
 
@@ -124,14 +142,20 @@ jobs:
           registry-url: https://npm.pkg.github.com/
           scope: '@gns-science'
 
-      - name: upgrade NPM
-        run: npm install --location=global npm@latest
+      - name: Setup NPM package manager, install and list dependencies
+        if: ${{ inputs.node-pkg-manager == 'npm' }}
+        run: |
+          npm install --location=global npm@latest
+          npm ci
+          npm ls
 
-      - name: Install Dependencies
-        run: npm install
-
-      - name: List packages
-        run: npm ls	
+      - name: Setup Yarn2 package manager, install and list dependencies
+        if: ${{ inputs.node-pkg-manager == 'yarn2' }}
+        run: |
+          corepack enable
+          yarn set version berry
+          yarn install --immutable
+          yarn info
 
       - name: Configure AWS Credentials
         if: ${{ inputs.aws-login }}
@@ -147,21 +171,15 @@ jobs:
         with:
           registry: 461564345538.dkr.ecr.ap-southeast-2.amazonaws.com      
 
-      - name: Serverless Deploy
-        env:
-            NZSHM22_KORORAA_API_URL: ${{ secrets.NZSHM22_KORORAA_API_URL }}
-            NZSHM22_KORORAA_API_KEY: ${{ secrets.NZSHM22_KORORAA_API_KEY }}
-            NZSHM22_TOSHI_API_URL: ${{ secrets.NZSHM22_TOSHI_API_URL }}
-            NZSHM22_TOSHI_API_KEY: ${{ secrets.NZSHM22_TOSHI_API_KEY }}
-            NZSHM22_NSHM_MODEL_API_URL: ${{ secrets.NZSHM22_NSHM_MODEL_API_URL }}
-            NZSHM22_NSHM_MODEL_API_KEY: ${{ secrets.NZSHM22_NSHM_MODEL_API_KEY }}
-            NZSHM22_SOLVIS_API_URL: ${{ secrets.NZSHM22_SOLVIS_API_URL }}
-            NZSHM22_SOLVIS_API_KEY: ${{ secrets.NZSHM22_SOLVIS_API_KEY }}
-            NZSHM22_HAZARD_API_KEY: ${{ secrets.NZSHM22_HAZARD_API_KEY }}
-            NZSHM22_HAZARD_API_URL: ${{ vars.NZSHM22_HAZARD_API_URL }}
-            SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+      - name: Serverless Deploy (NPM)
+        if: ${{ inputs.node-pkg-manager == 'npm' }}
         run: |
           STAGE=${{ (github.ref == 'refs/heads/main') && 'prod' || 'test'}} REGION=ap-southeast-2 npm run-script deploy 2>&1 | tee deploy.out
+
+      - name: Serverless Deploy (Yarn2)
+        if: ${{ inputs.node-pkg-manager == 'yarn2' }}
+        run: |
+          STAGE=${{ (github.ref == 'refs/heads/main') && 'prod' || 'test'}} REGION=ap-southeast-2 yarn run deploy 2>&1 | tee deploy.out
 
       - name: Smoke Test
         uses: GNS-Science/nshm-github-actions/.github/actions/apiSmokeTest@main
