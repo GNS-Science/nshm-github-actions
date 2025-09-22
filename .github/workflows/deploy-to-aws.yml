@@ -146,19 +146,16 @@ jobs:
         if: ${{ inputs.node-pkg-manager == 'npm' }}
         run: |
           npm install --location=global npm@latest
-          npm install
+          npm install --package-lock-only
           npm ls
-        env:
-          NODE_RUN_SCRIPT: "npm run-script"
 
       - name: Setup Yarn2 package manager, install and list dependencies
         if: ${{ inputs.node-pkg-manager == 'yarn2' }}
         run: |
           corepack enable
           yarn set version berry
-          yarn install
-        env:
-          NODE_RUN_SCRIPT: "yarn run"
+          yarn install --immutable
+          yarn ls
 
       - name: Configure AWS Credentials
         if: ${{ inputs.aws-login }}
