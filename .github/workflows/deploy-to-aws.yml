@@ -155,7 +155,7 @@ jobs:
           corepack enable
           yarn set version berry
           yarn install --immutable
-          yarn ls
+          yarn list
 
       - name: Configure AWS Credentials
         if: ${{ inputs.aws-login }}
