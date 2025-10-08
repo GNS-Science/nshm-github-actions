@@ -62,6 +62,7 @@ jobs:
 
       - name: install_package
         uses: GNS-Science/nshm-github-actions/.github/actions/python-install@main
+        with:
           python-version: ${{ inputs.python-version }}
           poetry-version: ${{ inputs.poetry-version }}
           working-directory: ${{ inputs.working-directory }}
