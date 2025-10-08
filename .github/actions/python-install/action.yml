@@ -2,7 +2,6 @@ name: Setup Python Venv
 
 # Reusable workflow for Python projects that checks out repo and installs with Poetry
 
-
 inputs:
   python-version:
     description: A Python version to use
@@ -22,6 +21,11 @@ inputs:
     required: false
     type: boolean
     default: false
+  optional-dependency-groups:
+    description: Which optional group or groups to install. Use comma delimiter for multiple groups e.g `dev,doc`.
+    required: false
+    type: string
+    default: ""
 
 runs:
   using: "composite"
@@ -72,12 +76,17 @@ runs:
         path: ${{ inputs.working-directory }}/.venv
         key: venv-${{ runner.os }}-${{ steps.pythonInstallStep.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}-python-run-tests
 
-    #----------------------------------------------
+    #----------------------------------------------------
     #        install dependencies if cache does not exist
-    #----------------------------------------------
+    #----------------------------------------------------
     - name: Install dependencies
       shell: bash
       if: inputs.delete-poetry-lock || steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
       working-directory: ${{ inputs.working-directory }}
-      run: 
-        poetry install --no-interaction --no-root --with dev --all-extras
+
+      run: |
+        if [ "${{ inputs.optional-dependency-groups }} == "" ]; then
+          poetry install --no-interaction --no-root --all-extras
+        else
+          poetry install --no-interaction --no-root --with ${{ inputs.optional-dependency-groups }} --all-extras
+        fi

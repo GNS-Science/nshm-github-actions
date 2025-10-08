@@ -26,6 +26,11 @@ on:
           required: false
           type: number
           default: 10
+        optional-dependency-groups:
+          description: Which optional group or groups to install. Use comma delimiter for multiple groups e.g `dev,doc`.
+          required: false
+          type: string
+          default: dev
 
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
@@ -61,6 +66,7 @@ jobs:
           python-version: ${{ inputs.python-version }}
           poetry-version: ${{ inputs.poetry-version }}
           working-directory: ${{ inputs.working-directory }}
+          optional-dependency-groups: ${{ inputs.optional-dependency-groups }}
 
         #----------------------------------------------
         # build documentation

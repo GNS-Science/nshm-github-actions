@@ -56,7 +56,11 @@ on:
         required: false
         type: boolean
         default: false
-
+      optional-dependency-groups:
+        description: Which optional group or groups to install. Use comma delimiter for multiple groups e.g `dev,doc`.
+        required: false
+        type: string
+        default: dev
 
 jobs:
   run_unit_tests:
@@ -87,6 +91,7 @@ jobs:
           poetry-version: ${{ inputs.poetry-version }}
           working-directory: ${{ inputs.working-directory }}
           delete-poetry-lock: ${{ inputs.delete-poetry-lock }}
+          optional-dependency-groups: ${{ inputs.optional-dependency-groups }}
 
       #----------------------------------------------
       #        Install tox-gh-actions. 
