@@ -81,12 +81,12 @@ runs:
     #----------------------------------------------------
     - name: Install dependencies
       shell: bash
-      if: ${{ inputs.optional-dependency-groups }} <> "" && ( inputs.delete-poetry-lock || steps.cached-poetry-dependencies.outputs.cache-hit != 'true' )
+      if: inputs.delete-poetry-lock || steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
       working-directory: ${{ inputs.working-directory }}
 
       run: |
         if [ "${{ inputs.optional-dependency-groups }} == "" ]; then
-          poetry install --no-interaction --no-root
+          poetry install --no-interaction --no-root --all-extras
         else
-          poetry install --no-interaction --no-root --with ${{ inputs.optional-dependency-groups }}
+          poetry install --no-interaction --no-root --with ${{ inputs.optional-dependency-groups }} --all-extras
         fi
