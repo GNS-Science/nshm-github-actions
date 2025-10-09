@@ -70,9 +70,11 @@ jobs:
 
         #----------------------------------------------
         # build documentation
+        #  - we must also ensure that the project itself is installed
         #----------------------------------------------
       - name: build documentation
         run: |
+          poetry install --only-root
           poetry run mkdocs build
           
         #----------------------------------------------
