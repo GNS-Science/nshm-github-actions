@@ -85,7 +85,7 @@ runs:
       working-directory: ${{ inputs.working-directory }}
 
       run: |
-        if [ "${{ inputs.optional-dependency-groups }} == "" ]; then
+        if [ "${{ inputs.optional-dependency-groups }}" == "" ]; then
           poetry install --no-interaction --no-root --all-extras
         else
           poetry install --no-interaction --no-root --with ${{ inputs.optional-dependency-groups }} --all-extras
