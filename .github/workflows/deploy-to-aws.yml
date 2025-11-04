@@ -20,8 +20,11 @@ name: Deploy to AWS
 #   - NZSHM22_KORORAA_API_KEY
 #   - NZSHM22_SOLVIS_API_URL
 #   - NZSHM22_SOLVIS_API_KEY
-#   - NZSHM22_HAZARD_API_KEY (the URL should be specified as an environment variable)
 #   - SERVERLESS_ACCESS_KEY
+
+# supported vars for deployment step:
+#   - NZSHM22_HAZARD_API_KEY 
+#   - ES_HOST (Elastic search specified as an environment variable)
 
 on:
   workflow_call:
@@ -159,6 +162,7 @@ jobs:
 
       - name: Serverless Deploy (NPM)
         env:
+            # secrets
             NZSHM22_KORORAA_API_URL: ${{ secrets.NZSHM22_KORORAA_API_URL }}
             NZSHM22_KORORAA_API_KEY: ${{ secrets.NZSHM22_KORORAA_API_KEY }}
             NZSHM22_TOSHI_API_URL: ${{ secrets.NZSHM22_TOSHI_API_URL }}
@@ -168,14 +172,18 @@ jobs:
             NZSHM22_SOLVIS_API_URL: ${{ secrets.NZSHM22_SOLVIS_API_URL }}
             NZSHM22_SOLVIS_API_KEY: ${{ secrets.NZSHM22_SOLVIS_API_KEY }}
             NZSHM22_HAZARD_API_KEY: ${{ secrets.NZSHM22_HAZARD_API_KEY }}
-            NZSHM22_HAZARD_API_URL: ${{ vars.NZSHM22_HAZARD_API_URL }}
             SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+            # vars
+            NZSHM22_HAZARD_API_URL: ${{ vars.NZSHM22_HAZARD_API_URL }}
+            ES_HOST: ${{ vars.ES_HOST }}
+
         if: ${{ inputs.node-pkg-manager == 'npm' }}
         run: |
           STAGE=${{ (github.ref == 'refs/heads/main') && 'prod' || 'test'}} REGION=ap-southeast-2 npm run-script deploy 2>&1 | tee deploy.out
 
       - name: Serverless Deploy (Yarn2)
         env:
+            # secrets
             NZSHM22_KORORAA_API_URL: ${{ secrets.NZSHM22_KORORAA_API_URL }}
             NZSHM22_KORORAA_API_KEY: ${{ secrets.NZSHM22_KORORAA_API_KEY }}
             NZSHM22_TOSHI_API_URL: ${{ secrets.NZSHM22_TOSHI_API_URL }}
@@ -185,8 +193,11 @@ jobs:
             NZSHM22_SOLVIS_API_URL: ${{ secrets.NZSHM22_SOLVIS_API_URL }}
             NZSHM22_SOLVIS_API_KEY: ${{ secrets.NZSHM22_SOLVIS_API_KEY }}
             NZSHM22_HAZARD_API_KEY: ${{ secrets.NZSHM22_HAZARD_API_KEY }}
-            NZSHM22_HAZARD_API_URL: ${{ vars.NZSHM22_HAZARD_API_URL }}
             SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+            # vars
+            NZSHM22_HAZARD_API_URL: ${{ vars.NZSHM22_HAZARD_API_URL }}
+            ES_HOST: ${{ vars.ES_HOST }}
+
         if: ${{ inputs.node-pkg-manager == 'yarn2' }}
         run: |
           STAGE=${{ (github.ref == 'refs/heads/main') && 'prod' || 'test'}} REGION=ap-southeast-2 yarn run deploy 2>&1 | tee deploy.out
