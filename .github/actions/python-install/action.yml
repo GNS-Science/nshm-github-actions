@@ -49,7 +49,7 @@ runs:
     #----------------------------------------------
     #       install Python
     #----------------------------------------------
-    - uses: actions/setup-python@v5
+    - uses: actions/setup-python@v6
       id: pythonInstallStep
       with:
         python-version: ${{ inputs.python-version }}
