@@ -12,18 +12,18 @@ name: Deploy to AWS
 #   - AWS_SECRET_ACCESS_KEY
 
 # supported secrets for deployment step:
+#   - NZSHM22_KORORAA_API_KEY
 #   - NZSHM22_TOSHI_API_KEY
 #   - NZSHM22_NSHM_MODEL_API_KEY
-#   - NZSHM22_KORORAA_API_URL
-#   - NZSHM22_KORORAA_API_KEY
-#   - NZSHM22_SOLVIS_API_URL
 #   - NZSHM22_SOLVIS_API_KEY
-#   - SERVERLESS_ACCESS_KEY
 #   - NZSHM22_HAZARD_API_KEY
+#   - SERVERLESS_ACCESS_KEY
 
 # supported vars for deployment step:
-#   - NZSHM22_NSHM_MODEL_API_URL
+#   - NZSHM22_KORORAA_API_URL
 #   - NZSHM22_TOSHI_API_URL
+#   - NZSHM22_NSHM_MODEL_API_URL
+#   - NZSHM22_SOLVIS_API_URL
 #   - NZSHM22_HAZARD_API_URL 
 #   - ES_HOST (Elastic search specified as an environment variable)
 
@@ -164,17 +164,17 @@ jobs:
       - name: Serverless Deploy (NPM)
         env:
             # secrets
-            NZSHM22_KORORAA_API_URL: ${{ secrets.NZSHM22_KORORAA_API_URL }}
             NZSHM22_KORORAA_API_KEY: ${{ secrets.NZSHM22_KORORAA_API_KEY }}
             NZSHM22_TOSHI_API_KEY: ${{ secrets.NZSHM22_TOSHI_API_KEY }}
             NZSHM22_NSHM_MODEL_API_KEY: ${{ secrets.NZSHM22_NSHM_MODEL_API_KEY }}
-            NZSHM22_SOLVIS_API_URL: ${{ secrets.NZSHM22_SOLVIS_API_URL }}
             NZSHM22_SOLVIS_API_KEY: ${{ secrets.NZSHM22_SOLVIS_API_KEY }}
             NZSHM22_HAZARD_API_KEY: ${{ secrets.NZSHM22_HAZARD_API_KEY }}
             SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
             # vars
-            NZSHM22_NSHM_MODEL_API_URL: ${{ vars.NZSHM22_NSHM_MODEL_API_URL }}            
+            NZSHM22_KORORAA_API_URL: ${{ vars.NZSHM22_KORORAA_API_URL }}
             NZSHM22_TOSHI_API_URL: ${{ vars.NZSHM22_TOSHI_API_URL }}            
+            NZSHM22_NSHM_MODEL_API_URL: ${{ vars.NZSHM22_NSHM_MODEL_API_URL }}            
+            NZSHM22_SOLVIS_API_URL: ${{ vars.NZSHM22_SOLVIS_API_URL }}            
             NZSHM22_HAZARD_API_URL: ${{ vars.NZSHM22_HAZARD_API_URL }}
             ES_HOST: ${{ vars.ES_HOST }}
 
@@ -185,17 +185,17 @@ jobs:
       - name: Serverless Deploy (Yarn2)
         env:
             # secrets
-            NZSHM22_KORORAA_API_URL: ${{ secrets.NZSHM22_KORORAA_API_URL }}
             NZSHM22_KORORAA_API_KEY: ${{ secrets.NZSHM22_KORORAA_API_KEY }}
             NZSHM22_TOSHI_API_KEY: ${{ secrets.NZSHM22_TOSHI_API_KEY }}
             NZSHM22_NSHM_MODEL_API_KEY: ${{ secrets.NZSHM22_NSHM_MODEL_API_KEY }}
-            NZSHM22_SOLVIS_API_URL: ${{ secrets.NZSHM22_SOLVIS_API_URL }}
             NZSHM22_SOLVIS_API_KEY: ${{ secrets.NZSHM22_SOLVIS_API_KEY }}
             NZSHM22_HAZARD_API_KEY: ${{ secrets.NZSHM22_HAZARD_API_KEY }}
             SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
             # vars
-            NZSHM22_NSHM_MODEL_API_URL: ${{ vars.NZSHM22_NSHM_MODEL_API_URL }}            
+            NZSHM22_KORORAA_API_URL: ${{ vars.NZSHM22_KORORAA_API_URL }}
             NZSHM22_TOSHI_API_URL: ${{ vars.NZSHM22_TOSHI_API_URL }}            
+            NZSHM22_NSHM_MODEL_API_URL: ${{ vars.NZSHM22_NSHM_MODEL_API_URL }}            
+            NZSHM22_SOLVIS_API_URL: ${{ vars.NZSHM22_SOLVIS_API_URL }}            
             NZSHM22_HAZARD_API_URL: ${{ vars.NZSHM22_HAZARD_API_URL }}
             ES_HOST: ${{ vars.ES_HOST }}
 
