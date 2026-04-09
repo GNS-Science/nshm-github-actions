@@ -40,7 +40,7 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
-        echo "::Warning title=uv.lock::uv.lock is not deleted in this workflow run even though this was requested."
+        echo "::Warning title=uv.lock::uv.lock is not deleted in this workflow run even though this was requested. See https://github.com/GNS-Science/nshm-github-actions/issues/26."
 
     #----------------------------------------------
     #       install uv (and Python via uv)
