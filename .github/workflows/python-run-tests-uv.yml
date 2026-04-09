@@ -1,0 +1,145 @@
+name: Run Python Tests (uv)
+
+# Reusable workflow for Python projects that run tests with uv
+#
+# For each combination of `python-versions` and `operating-systems`:
+#    - runs `tox` via uv for the current Python installation
+#    - uploads coverage data to Codecov - only for the first Python version and a Linux OS to avoid double-ups
+#
+# Matrix arrays `operating-systems` and `python-versions` are required and need to be provided as stringified JSON.
+# See default values for examples. This is because reusable workflows cannot take arrays as arguments.
+#
+# Set up the SCHEDULED_GITHUB_SLACK_WEBHOOK secret to receive Slack notification of build failures of scheduled runs.
+# Messages will be posted to the `cwg-scheduled-builds` channel: https://nshmrevisionproject.slack.com/archives/C08QYS2ER9T
+
+on:
+  workflow_call:
+    inputs:
+      operating-systems:
+        description: A stringified JSON array of all operating systems to use
+        required: true
+        type: string
+        default: "['ubuntu-latest', 'windows-latest', 'macos-latest']"
+      python-versions:
+        description: A stringified JSON array of all Python versions to use
+        required: true
+        type: string
+        default: "['3.10', '3.11']"
+      fail-fast:
+        description: Set to false if you want all jobs finish running even if one fails. See https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idstrategyfail-fast
+        required: false
+        type: boolean
+        default: true
+      timeout-minutes:
+        description: Maximum runtime in minutes
+        required: false
+        type: number
+        default: 10
+      uv-version:
+        description: The uv version to use
+        required: false
+        type: string
+        default: "latest"
+      fail-on-codecov-error:
+        description: Whether to fail if Codecov upload encounters an error
+        required: false
+        type: boolean
+        default: true
+      working-directory:
+        description: The working directory
+        required: false
+        type: string
+        default: .
+      delete-uv-lock:
+        description: Delete uv.lock file in order to test against newer versions
+        required: false
+        type: boolean
+        default: false
+      optional-dependency-groups:
+        description: Which optional group or groups to install. Use comma delimiter for multiple groups e.g `dev,doc`.
+        required: false
+        type: string
+        default: dev
+
+jobs:
+  run_unit_tests:
+    timeout-minutes: ${{ inputs.timeout-minutes }}
+
+    strategy:
+      fail-fast: ${{ inputs.fail-fast}}
+      matrix:
+        python-version: ${{ fromJson(inputs.python-versions) }}
+        os: ${{ fromJson(inputs.operating-systems) }}
+
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ inputs.working-directory }}
+    env:
+      OS: ${{ matrix.os }}
+      PYTHON: ${{ matrix.python-version }}
+    steps:
+
+      - uses: actions/checkout@v4
+
+      - name: install_package
+        uses: GNS-Science/nshm-github-actions/.github/actions/python-install-uv@main
+        with:
+          python-version: ${{ matrix.python-version }}
+          uv-version: ${{ inputs.uv-version }}
+          working-directory: ${{ inputs.working-directory }}
+          delete-uv-lock: ${{ inputs.delete-uv-lock }}
+          optional-dependency-groups: ${{ inputs.optional-dependency-groups }}
+
+      #----------------------------------------------
+      #        Install tox-gh-actions if not already present
+      #----------------------------------------------
+      - name: Install tox-gh-actions
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if uv pip list | grep -q tox-gh-actions; then
+            echo "tox-gh-actions is already installed"
+          else
+            uv add --group dev tox-gh-actions
+          fi
+
+      #----------------------------------------------
+      #       Test with tox
+      #----------------------------------------------
+      - name: test with tox (uses tox-gh-actions to select correct environment)
+        run: |
+          uv run tox
+
+      #----------------------------------------------
+      #       list files
+      #----------------------------------------------
+      - name: list files
+        run: ls -l .
+
+      #----------------------------------------------
+      #       upload coverage report to Codecov
+      #----------------------------------------------
+      - name: Submit coverage report
+        if: fromJson(inputs.python-versions)[0] == matrix.python-version && runner.os == 'Linux'
+        uses: codecov/codecov-action@v5
+        with:
+          files: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          token: ${{ secrets.CODECOV_TOKEN }}
+          verbose: true
+          env_vars: OS,PYTHON
+          fail_ci_if_error: ${{ inputs.fail-on-codecov-error }}
+
+      #----------------------------------------------
+      #       Post error msg to Slack for failed scheduled builds
+      #----------------------------------------------
+      - name: Post a Slack message if build failed
+        uses: slackapi/slack-github-action@v2.0.0
+        if: failure() && github.event_name == 'schedule'
+        with:
+          webhook: ${{ secrets.SCHEDULED_GITHUB_SLACK_WEBHOOK }}
+          webhook-type: incoming-webhook
+          payload: |
+            text: "⚠️*${{ job.status }}*\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|${{ github.event.repository.name }}, ${{ matrix.os }}, Python ${{ matrix.python-version }}>"

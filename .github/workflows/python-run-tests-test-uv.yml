@@ -1,0 +1,20 @@
+# A workflow that runs on push/PR to check that python-run-tests-uv.yml works
+
+name: python-run-tests-uv test workflow
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, pre-release]
+  pull_request:
+    branches: [main, pre-release]
+
+jobs:
+  call-test-workflow:
+    uses: ./.github/workflows/python-run-tests-uv.yml
+    with:
+      operating-systems: "['ubuntu-latest', 'macos-latest', 'windows-latest']"
+      python-versions:  "['3.10', '3.11']"
+      working-directory: samplePythonProjectUv
+      fail-on-codecov-error: false
+    secrets: inherit
