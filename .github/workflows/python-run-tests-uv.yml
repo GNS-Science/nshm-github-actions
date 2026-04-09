@@ -24,7 +24,7 @@ on:
         description: A stringified JSON array of all Python versions to use
         required: true
         type: string
-        default: "['3.10', '3.11']"
+        default: "['3.10', '3.11', '3.12']"
       fail-fast:
         description: Set to false if you want all jobs finish running even if one fails. See https://docs.github.com/en/actions/writing-workflows/workflow-syntax-for-github-actions#jobsjob_idstrategyfail-fast
         required: false
