@@ -84,7 +84,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: install_package
-        uses: GNS-Science/nshm-github-actions/.github/actions/python-install-uv@feature/40-uv
+        uses: GNS-Science/nshm-github-actions/.github/actions/python-install-uv@main-uv
         with:
           python-version: ${{ matrix.python-version }}
           uv-version: ${{ inputs.uv-version }}
