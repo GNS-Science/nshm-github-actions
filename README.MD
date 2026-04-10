@@ -20,7 +20,7 @@ jobs:
     uses: GNS-Science/nshm-github-actions/.github/workflows/python-run-tests.yml@feature/create-test-workflow
     with:
       operating-systems: "['ubuntu-latest', 'macos-latest', 'windows.latest']"
-      python-versions: "['3.9', '3.10', '3.11']"
+      python-versions: "['3.10', '3.11', '3.12']"
     secrets: inherit
 ```
 
@@ -56,6 +56,52 @@ jobs:
     uses:  GNS-Science/nshm-github-actions/.github/workflows/python-deploy-docs.yml@main
     with:
       python-version:  '3.12'
+    secrets: inherit
+```
+
+## uv Workflows
+
+The workflows below are uv-based equivalents of the Poetry workflows above. Use them for projects that have migrated from Poetry to [uv](https://docs.astral.sh/uv/).
+
+### [Python Tests Workflow (uv)](./.github/workflows/python-run-tests-uv.yml)
+
+Equivalent of the Poetry tests workflow. Runs `uv run tox` and uploads coverage data to Codecov.
+
+Minimal setup:
+
+```yml
+jobs:
+  call-test-workflow:
+    uses: GNS-Science/nshm-github-actions/.github/workflows/python-run-tests-uv.yml@main
+    with:
+      operating-systems: "['ubuntu-latest', 'macos-latest', 'windows-latest']"
+      python-versions: "['3.10', '3.11', '3.12']"
+    secrets: inherit
+```
+
+### [Python Release Workflow (uv)](./.github/workflows/python-release-uv.yml)
+
+Creates a GitHub release and publishes the package to PyPI using `uv build`. Requires the secret `PYPI_API_TOKEN`.
+
+```yml
+jobs:
+  release-and-distribute:
+    uses: GNS-Science/nshm-github-actions/.github/workflows/python-release-uv.yml@main
+    with:
+      python-version: '3.12'
+    secrets: inherit
+```
+
+### [Python Deploy Docs Workflow (uv)](./.github/workflows/python-deploy-docs-uv.yml)
+
+Publishes mkdocs documentation to GitHub Pages using uv.
+
+```yml
+jobs:
+  deploy-docs:
+    uses: GNS-Science/nshm-github-actions/.github/workflows/python-deploy-docs-uv.yml@main
+    with:
+      python-version: '3.12'
     secrets: inherit
 ```
 

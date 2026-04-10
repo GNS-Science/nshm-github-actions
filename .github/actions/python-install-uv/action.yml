@@ -1,0 +1,75 @@
+name: Setup Python Venv (uv)
+
+# Composite action for Python projects that installs with uv
+
+inputs:
+  python-version:
+    description: A Python version to use
+    required: true
+    type: string
+  uv-version:
+    description: The uv version to use
+    required: false
+    type: string
+    default: "latest"
+  working-directory:
+    description: The working directory
+    required: false
+    type: string
+    default: .
+  delete-uv-lock:
+    description: Delete uv.lock file in order to test against newer versions
+    required: false
+    type: boolean
+    default: false
+  optional-dependency-groups:
+    description: Which optional group or groups to install. Use comma delimiter for multiple groups e.g `dev,doc`.
+    required: false
+    type: string
+    default: ""
+
+runs:
+  using: "composite"
+  steps:
+
+    #----------------------------------------------
+    #       delete uv.lock file in order to run tests against newer versions
+    #----------------------------------------------
+    - name: Delete uv.lock file
+      if: ${{ inputs.delete-uv-lock == 'true' }}
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        echo "::Warning title=uv.lock::uv.lock is not deleted in this workflow run even though this was requested. See https://github.com/GNS-Science/nshm-github-actions/issues/26."
+
+    #----------------------------------------------
+    #       install uv (and Python via uv)
+    #       caching is handled automatically by setup-uv
+    #----------------------------------------------
+    - name: Install uv and Python
+      uses: astral-sh/setup-uv@v6
+      with:
+        version: ${{ inputs.uv-version }}
+        python-version: ${{ inputs.python-version }}
+        enable-cache: true
+        cache-dependency-glob: ${{ inputs.working-directory }}/uv.lock
+
+    #----------------------------------------------
+    #       install dependencies via uv sync
+    #----------------------------------------------
+    - name: Install dependencies
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        GROUPS: ${{ inputs.optional-dependency-groups }}
+      run: |
+        if [ -z "$GROUPS" ]; then
+          uv sync --no-install-project --all-extras
+        else
+          GROUP_FLAGS=""
+          IFS=',' read -ra GROUPS_ARR <<< "$GROUPS"
+          for g in "${GROUPS_ARR[@]}"; do
+            GROUP_FLAGS="$GROUP_FLAGS --group ${g// /}"
+          done
+          uv sync --no-install-project --all-extras $GROUP_FLAGS
+        fi

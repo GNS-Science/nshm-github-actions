@@ -99,7 +99,7 @@ jobs:
         working-directory: ${{ inputs.working-directory }}
     environment: ${{ (inputs.environment && ((github.ref == 'refs/heads/main') && 'AWS_PROD' || 'AWS_TEST')) || '' }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - uses: actions/setup-python@v5
         if: ${{ inputs.python-version != 'None' }}

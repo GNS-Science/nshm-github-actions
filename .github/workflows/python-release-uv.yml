@@ -1,7 +1,7 @@
-name: Python Release
+name: Python Release (uv)
 
-# Creates a GitHub release and publishes the package to PyPI. Would commonly be one of two jobs along
-# with with Python Deploy Docs in a repo workflow triggered by e.g. tagging a version.
+# Creates a GitHub release and publishes the package to PyPI using uv. Would commonly be one of two jobs along
+# with Python Deploy Docs in a repo workflow triggered by e.g. tagging a version.
 #
 # Requires the secret `PYPI_API_TOKEN`.
 
@@ -13,8 +13,8 @@ on:
             required: true
             type: string
             default: "3.10"
-        poetry-version:
-            description: The poetry version to use
+        uv-version:
+            description: The uv version to use
             required: false
             type: string
             default: "latest"
@@ -54,10 +54,10 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: install_package
-        uses: GNS-Science/nshm-github-actions/.github/actions/python-install@main
+        uses: GNS-Science/nshm-github-actions/.github/actions/python-install-uv@main
         with:
           python-version: ${{ inputs.python-version }}
-          poetry-version: ${{ inputs.poetry-version }}
+          uv-version: ${{ inputs.uv-version }}
           working-directory: ${{ inputs.working-directory }}
 
         #----------------------------------------------
@@ -79,13 +79,13 @@ jobs:
           validation_depth: 10
           version: ${{ steps.tag_name.outputs.current_version }}
           path: ${{ inputs.working-directory }}/CHANGELOG.md
-  
+
         #----------------------------------------------
         # build wheels and tarball
         #----------------------------------------------
       - name: Build wheels and source tarball
         run: >-
-          poetry build
+          uv build
 
       - name: show temporary files
         run: >-
@@ -104,7 +104,7 @@ jobs:
           files: ${{ inputs.working-directory }}/dist/*.whl
           draft: false
           prerelease: false
- 
+
         #----------------------------------------------
         # publish to PyPI
         #----------------------------------------------

@@ -1,17 +1,16 @@
-name: Run Python Tests 
+name: Run Python Tests (uv)
 
-# Reusable workflow for Python projects that runs tests
+# Reusable workflow for Python projects that run tests with uv
 #
 # For each combination of `python-versions` and `operating-systems`:
-#    - runs `tox` for the current Python installation
+#    - runs `tox` via uv for the current Python installation
 #    - uploads coverage data to Codecov - only for the first Python version and a Linux OS to avoid double-ups
-# 
-# Matrix arrays `operating-systems` and `python-versions` are required and need to be provided as stringified JSON. 
+#
+# Matrix arrays `operating-systems` and `python-versions` are required and need to be provided as stringified JSON.
 # See default values for examples. This is because reusable workflows cannot take arrays as arguments.
 #
 # Set up the SCHEDULED_GITHUB_SLACK_WEBHOOK secret to receive Slack notification of build failures of scheduled runs.
 # Messages will be posted to the `cwg-scheduled-builds` channel: https://nshmrevisionproject.slack.com/archives/C08QYS2ER9T
- 
 
 on:
   workflow_call:
@@ -36,8 +35,8 @@ on:
         required: false
         type: number
         default: 10
-      poetry-version:
-        description: The poetry version to use
+      uv-version:
+        description: The uv version to use
         required: false
         type: string
         default: "latest"
@@ -51,8 +50,8 @@ on:
         required: false
         type: string
         default: .
-      delete-poetry-lock:
-        description: Delete poetry lock file in order to test against newer versions
+      delete-uv-lock:
+        description: Delete uv.lock file in order to test against newer versions
         required: false
         type: boolean
         default: false
@@ -85,60 +84,60 @@ jobs:
       - uses: actions/checkout@v5
 
       - name: install_package
-        uses: GNS-Science/nshm-github-actions/.github/actions/python-install@main
+        uses: GNS-Science/nshm-github-actions/.github/actions/python-install-uv@main
         with:
           python-version: ${{ matrix.python-version }}
-          poetry-version: ${{ inputs.poetry-version }}
+          uv-version: ${{ inputs.uv-version }}
           working-directory: ${{ inputs.working-directory }}
-          delete-poetry-lock: ${{ inputs.delete-poetry-lock }}
+          delete-uv-lock: ${{ inputs.delete-uv-lock }}
           optional-dependency-groups: ${{ inputs.optional-dependency-groups }}
 
       #----------------------------------------------
-      #        Install tox-gh-actions. 
-      #        We can't always rely on the cache for this.
+      #        Install tox-gh-actions if not already present
       #----------------------------------------------
       - name: Install tox-gh-actions
+        working-directory: ${{ inputs.working-directory }}
         run: |
-          if poetry run pip list | grep tox-gh-actions; then
+          if uv pip list | grep -q tox-gh-actions; then
             echo "tox-gh-actions is already installed"
           else
-            poetry add tox-gh-actions
+            uv add --group dev tox-gh-actions
           fi
 
       #----------------------------------------------
       #       Test with tox
-      #----------------------------------------------         
+      #----------------------------------------------
       - name: test with tox (uses tox-gh-actions to select correct environment)
         run: |
-          poetry run tox
+          uv run tox
 
       #----------------------------------------------
       #       list files
-      #----------------------------------------------          
+      #----------------------------------------------
       - name: list files
         run: ls -l .
 
       #----------------------------------------------
       #       upload coverage report to Codecov
-      #----------------------------------------------        
+      #----------------------------------------------
       - name: Submit coverage report
         if: fromJson(inputs.python-versions)[0] == matrix.python-version && runner.os == 'Linux'
         uses: codecov/codecov-action@v5
         with:
-          files: ./coverage.xml 
-          flags: unittests 
-          name: codecov-umbrella 
-          token: ${{ secrets.CODECOV_TOKEN }} 
+          files: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          token: ${{ secrets.CODECOV_TOKEN }}
           verbose: true
           env_vars: OS,PYTHON
           fail_ci_if_error: ${{ inputs.fail-on-codecov-error }}
 
       #----------------------------------------------
       #       Post error msg to Slack for failed scheduled builds
-      #----------------------------------------------        
+      #----------------------------------------------
       - name: Post a Slack message if build failed
         uses: slackapi/slack-github-action@v2.0.0
-        if: failure() && github.event_name == 'schedule' 
+        if: failure() && github.event_name == 'schedule'
         with:
           webhook: ${{ secrets.SCHEDULED_GITHUB_SLACK_WEBHOOK }}
           webhook-type: incoming-webhook
