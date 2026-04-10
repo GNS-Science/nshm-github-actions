@@ -58,7 +58,7 @@ jobs:
 
     steps:
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: install_package
         uses: GNS-Science/nshm-github-actions/.github/actions/python-install-uv@main
