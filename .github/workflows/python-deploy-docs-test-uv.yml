@@ -1,0 +1,23 @@
+# A workflow that runs on push/PR to check that python-deploy-docs-uv.yml works
+
+name: python-deploy-docs-uv test workflow
+
+on:
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+  # schedules this to run weekly
+  # schedule:
+  #   - cron: '5 3 * * 0' # At 03:05 on Sunday
+  push:
+    branches: [main, pre-release]
+  pull_request:
+    branches: [main, pre-release]
+
+jobs:
+  call-test-workflow:
+    uses: ./.github/workflows/python-deploy-docs-uv.yml
+    with:
+      python-version: "3.12"
+      working-directory: samplePythonProjectUv
+      build-only: true
+    secrets: inherit
