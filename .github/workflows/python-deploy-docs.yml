@@ -31,6 +31,11 @@ on:
           required: false
           type: string
           default: dev,doc
+        build-only:
+          description: If true, skip the upload and deploy steps (useful for testing the build without deploying to GitHub Pages).
+          required: false
+          type: boolean
+          default: false
 
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
@@ -78,9 +83,10 @@ jobs:
           poetry run mkdocs build
           
         #----------------------------------------------
-        # package and upload artifact for deployment to GitHub Pages 
+        # package and upload artifact for deployment to GitHub Pages
         #----------------------------------------------
       - name: Upload artifact
+        if: ${{ !inputs.build-only }}
         uses: actions/upload-pages-artifact@v4
         with:
           path: ${{ inputs.working-directory }}/site
@@ -90,5 +96,6 @@ jobs:
         # deploy page
         #----------------------------------------------
       - name: Deploy Docs to GitHub Pages
+        if: ${{ !inputs.build-only }}
         id: deployment
         uses: actions/deploy-pages@v4
