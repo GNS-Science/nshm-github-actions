@@ -52,9 +52,7 @@ concurrency:
 
 jobs:
   deploy:
-    environment:
-        name: github-pages
-        url: ${{ steps.deployment.outputs.page_url }}
+    environment: ${{ !inputs.build-only && 'github-pages' || '' }}
     runs-on: ubuntu-latest
     timeout-minutes: ${{ inputs.timeout-minutes }}
     defaults:
