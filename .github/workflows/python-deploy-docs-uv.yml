@@ -73,8 +73,6 @@ jobs:
 
         #----------------------------------------------
         # build documentation
-        #  - uv sync installs the project root by default; the composite action
-        #    uses --no-install-project, so sync here to bring it in before building
         #----------------------------------------------
       - name: build documentation
         run: |
