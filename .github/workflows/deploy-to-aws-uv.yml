@@ -1,0 +1,208 @@
+name: Deploy to AWS (uv)
+
+# Reusable workflow for Python projects deploy to AWS (uv variant)
+# supports `npm` or `yarn2` package manager ($PakMan)
+# Deploys with `$PakMan run-script deploy`
+# Any environment variables required to run `$PakMan run-script deploy` must be specified in the AWS_PROD or AWS_TEST environments or at repo level.
+# If using serverless v4, please specify the secret `SERVERLESS_ACCESS_KEY`
+
+
+# required secrets:
+#   - AWS_ACCESS_KEY_ID
+#   - AWS_SECRET_ACCESS_KEY
+
+# supported secrets for deployment step:
+#   - NZSHM22_KORORAA_API_KEY
+#   - NZSHM22_TOSHI_API_KEY
+#   - NZSHM22_NSHM_MODEL_API_KEY
+#   - NZSHM22_SOLVIS_API_KEY
+#   - NZSHM22_HAZARD_API_KEY
+#   - SERVERLESS_ACCESS_KEY
+
+# supported vars for deployment step:
+#   - NZSHM22_KORORAA_API_URL
+#   - NZSHM22_TOSHI_API_URL
+#   - NZSHM22_NSHM_MODEL_API_URL
+#   - NZSHM22_SOLVIS_API_URL
+#   - NZSHM22_HAZARD_API_URL
+#   - ES_HOST (Elastic search specified as an environment variable)
+
+on:
+  workflow_call:
+    inputs:
+      python-version:
+        description: The Python version to use. If set to "None", no python features are installed.
+        required: true
+        type: string
+        default: '3.11'
+      uv-version:
+        description: The uv version to use
+        required: false
+        type: string
+        default: 'latest'
+      operating-system:
+        description: The operating system to use
+        required: false
+        type: string
+        default: 'ubuntu-latest'
+      node-version:
+        description: The Node version to use
+        required: false
+        type: string
+        default: '22'
+      environment:
+        description: If true, will use AWS_PROD or AWS_TEST environments
+        required: false
+        type: boolean
+        default: false
+      node-pkg-manager:
+        description: The node package manager to use, either `npm` or `yarn2`
+        required: true
+        type: string
+        default: 'npm'
+      docker:
+        description: If true, prerequisites for a docker deployment are run
+        required: false
+        type: boolean
+        default: false
+      working-directory:
+        description: The working directory
+        required: false
+        type: string
+        default: .
+      aws-login:
+        description: whether to log in to AWS. Should only be false for testing
+        required: false
+        type: boolean
+        default: true
+      smoketest-url-prod:
+        description: Used to overwrite the internal URL for smoke tests
+        required: false
+        type: string
+      smoketest-url-test:
+        description: Used to overwrite the internal URL for smoke tests
+        required: false
+        type: string
+      smoketest-query:
+        description: A GraphQL query to sendto the deployed API as a smoke test
+        required: false
+        type: string
+        default: "query {about}"
+      smoketest-expected:
+        description: A regex to be used for verifying the result of the smoketest
+        required: false
+        type: string
+        default: "data.*about.*Hello"
+
+jobs:
+
+  deploy:
+    runs-on: ${{inputs.operating-system}}
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ inputs.working-directory }}
+    environment: ${{ (inputs.environment && ((github.ref == 'refs/heads/main') && 'AWS_PROD' || 'AWS_TEST')) || '' }}
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Install uv and Python
+        if: ${{ inputs.python-version != 'None' }}
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: ${{ inputs.uv-version }}
+          python-version: ${{ inputs.python-version }}
+          enable-cache: true
+          cache-dependency-glob: ${{ inputs.working-directory }}/uv.lock
+
+      - name: Ensure latest requirements.txt
+        if: ${{ inputs.docker && inputs.python-version != 'None' }}
+        run: |
+          uv export --no-hashes --format requirements-txt > requirements.txt
+
+      - name: Use Node.js ${{ inputs.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ inputs.node-version }}
+          check-latest: true
+          registry-url: https://npm.pkg.github.com/
+          scope: '@gns-science'
+
+      - name: Setup NPM package manager, install and list dependencies
+        if: ${{ inputs.node-pkg-manager == 'npm' }}
+        run: |
+          npm install --location=global npm@latest
+          npm ci
+          npm ls
+
+      - name: Setup Yarn2 package manager, install and list dependencies
+        if: ${{ inputs.node-pkg-manager == 'yarn2' }}
+        run: |
+          corepack enable
+          yarn set version berry
+          yarn install --immutable
+          yarn info
+
+      - name: Configure AWS Credentials
+        if: ${{ inputs.aws-login }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID || secrets.AWS_TOSHI_ACCESS_KEY_ID}}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY || secrets.AWS_TOSHI_SECRET_ACCESS_KEY}}
+          aws-region: ap-southeast-2
+
+      - name: Login to ECR
+        if: ${{ inputs.docker }}
+        uses: docker/login-action@v3
+        with:
+          registry: 461564345538.dkr.ecr.ap-southeast-2.amazonaws.com
+
+      - name: Serverless Deploy (NPM)
+        env:
+            # secrets
+            NZSHM22_KORORAA_API_KEY: ${{ secrets.NZSHM22_KORORAA_API_KEY }}
+            NZSHM22_TOSHI_API_KEY: ${{ secrets.NZSHM22_TOSHI_API_KEY }}
+            NZSHM22_NSHM_MODEL_API_KEY: ${{ secrets.NZSHM22_NSHM_MODEL_API_KEY }}
+            NZSHM22_SOLVIS_API_KEY: ${{ secrets.NZSHM22_SOLVIS_API_KEY }}
+            NZSHM22_HAZARD_API_KEY: ${{ secrets.NZSHM22_HAZARD_API_KEY }}
+            SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+            # vars
+            NZSHM22_KORORAA_API_URL: ${{ vars.NZSHM22_KORORAA_API_URL }}
+            NZSHM22_TOSHI_API_URL: ${{ vars.NZSHM22_TOSHI_API_URL }}
+            NZSHM22_NSHM_MODEL_API_URL: ${{ vars.NZSHM22_NSHM_MODEL_API_URL }}
+            NZSHM22_SOLVIS_API_URL: ${{ vars.NZSHM22_SOLVIS_API_URL }}
+            NZSHM22_HAZARD_API_URL: ${{ vars.NZSHM22_HAZARD_API_URL }}
+            ES_HOST: ${{ vars.ES_HOST }}
+
+        if: ${{ inputs.node-pkg-manager == 'npm' }}
+        run: |
+          STAGE=${{ (github.ref == 'refs/heads/main') && 'prod' || 'test'}} REGION=ap-southeast-2 npm run-script deploy 2>&1 | tee deploy.out
+
+      - name: Serverless Deploy (Yarn2)
+        env:
+            # secrets
+            NZSHM22_KORORAA_API_KEY: ${{ secrets.NZSHM22_KORORAA_API_KEY }}
+            NZSHM22_TOSHI_API_KEY: ${{ secrets.NZSHM22_TOSHI_API_KEY }}
+            NZSHM22_NSHM_MODEL_API_KEY: ${{ secrets.NZSHM22_NSHM_MODEL_API_KEY }}
+            NZSHM22_SOLVIS_API_KEY: ${{ secrets.NZSHM22_SOLVIS_API_KEY }}
+            NZSHM22_HAZARD_API_KEY: ${{ secrets.NZSHM22_HAZARD_API_KEY }}
+            SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+            # vars
+            NZSHM22_KORORAA_API_URL: ${{ vars.NZSHM22_KORORAA_API_URL }}
+            NZSHM22_TOSHI_API_URL: ${{ vars.NZSHM22_TOSHI_API_URL }}
+            NZSHM22_NSHM_MODEL_API_URL: ${{ vars.NZSHM22_NSHM_MODEL_API_URL }}
+            NZSHM22_SOLVIS_API_URL: ${{ vars.NZSHM22_SOLVIS_API_URL }}
+            NZSHM22_HAZARD_API_URL: ${{ vars.NZSHM22_HAZARD_API_URL }}
+            ES_HOST: ${{ vars.ES_HOST }}
+
+        if: ${{ inputs.node-pkg-manager == 'yarn2' }}
+        run: |
+          STAGE=${{ (github.ref == 'refs/heads/main') && 'prod' || 'test'}} REGION=ap-southeast-2 yarn run deploy 2>&1 | tee deploy.out
+
+      - name: Smoke Test
+        uses: GNS-Science/nshm-github-actions/.github/actions/apiSmokeTest@main
+        with:
+            query: ${{ inputs.smoketest-query }}
+            expected-regex: ${{ inputs.smoketest-expected }}
+            working-directory: ${{ inputs.working-directory}}
+            url: ${{ (github.ref == 'refs/heads/main') && inputs.smoketest-url-prod || inputs.smoketest-url-test }}

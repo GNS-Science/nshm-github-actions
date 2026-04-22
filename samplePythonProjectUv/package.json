@@ -1,0 +1,10 @@
+{
+  "name": "samplepythonprojectuv",
+  "version": "0.0.1",
+  "description": "Used for testing workflows (uv variant).",
+  "scripts": {
+    "deploy": "uv run python deploy_check.py --stage ${STAGE} --region ${REGION}"
+  },
+  "dependencies": {},
+  "devDependencies": {}
+}
