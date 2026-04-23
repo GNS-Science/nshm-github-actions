@@ -1,6 +1,6 @@
-name: Deploy to AWS
+name: Deploy to AWS (uv)
 
-# Reusable workflow for Python projects deploy to AWS
+# Reusable workflow for Python projects deploy to AWS (uv variant)
 # supports `npm` or `yarn2` package manager ($PakMan)
 # Deploys with `$PakMan run-script deploy`
 # Any environment variables required to run `$PakMan run-script deploy` must be specified in the AWS_PROD or AWS_TEST environments or at repo level.
@@ -8,7 +8,7 @@ name: Deploy to AWS
 
 
 # required secrets:
-#   - AWS_ACCESS_KEY_ID 
+#   - AWS_ACCESS_KEY_ID
 #   - AWS_SECRET_ACCESS_KEY
 
 # supported secrets for deployment step:
@@ -24,7 +24,7 @@ name: Deploy to AWS
 #   - NZSHM22_TOSHI_API_URL
 #   - NZSHM22_NSHM_MODEL_API_URL
 #   - NZSHM22_SOLVIS_API_URL
-#   - NZSHM22_HAZARD_API_URL 
+#   - NZSHM22_HAZARD_API_URL
 #   - ES_HOST (Elastic search specified as an environment variable)
 
 on:
@@ -35,6 +35,11 @@ on:
         required: true
         type: string
         default: '3.11'
+      uv-version:
+        description: The uv version to use
+        required: false
+        type: string
+        default: 'latest'
       operating-system:
         description: The operating system to use
         required: false
@@ -74,11 +79,11 @@ on:
         description: Used to overwrite the internal URL for smoke tests
         required: false
         type: string
-      smoketest-url-test: 
+      smoketest-url-test:
         description: Used to overwrite the internal URL for smoke tests
         required: false
         type: string
-      smoketest-query: 
+      smoketest-query:
         description: A GraphQL query to sendto the deployed API as a smoke test
         required: false
         type: string
@@ -101,28 +106,19 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      - uses: actions/setup-python@v5
+      - name: Install uv and Python
         if: ${{ inputs.python-version != 'None' }}
+        uses: astral-sh/setup-uv@v6
         with:
+          version: ${{ inputs.uv-version }}
           python-version: ${{ inputs.python-version }}
-
-      - name: Install and configure Poetry
-        if: ${{ inputs.python-version != 'None' }}
-        uses: GNS-Science/install-poetry@main
-        with:
-          virtualenvs-create: true
-          virtualenvs-in-project: true
-          installer-parallel: true
-
-      - name: Install poetry-plugin-export
-        if: ${{ inputs.python-version != 'None' }}
-        run: |
-          poetry self add poetry-plugin-export
+          enable-cache: true
+          cache-dependency-glob: ${{ inputs.working-directory }}/uv.lock
 
       - name: Ensure latest requirements.txt
-        if: ${{ inputs.docker && inputs.python-version != 'None'}}
+        if: ${{ inputs.docker && inputs.python-version != 'None' }}
         run: |
-          poetry export --without-hashes --format=requirements.txt > requirements.txt
+          uv export --no-hashes --format requirements-txt > requirements.txt
 
       - name: Use Node.js ${{ inputs.node-version }}
         uses: actions/setup-node@v4
@@ -159,7 +155,7 @@ jobs:
         if: ${{ inputs.docker }}
         uses: docker/login-action@v3
         with:
-          registry: 461564345538.dkr.ecr.ap-southeast-2.amazonaws.com      
+          registry: 461564345538.dkr.ecr.ap-southeast-2.amazonaws.com
 
       - name: Serverless Deploy (NPM)
         env:
@@ -172,9 +168,9 @@ jobs:
             SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
             # vars
             NZSHM22_KORORAA_API_URL: ${{ vars.NZSHM22_KORORAA_API_URL }}
-            NZSHM22_TOSHI_API_URL: ${{ vars.NZSHM22_TOSHI_API_URL }}            
-            NZSHM22_NSHM_MODEL_API_URL: ${{ vars.NZSHM22_NSHM_MODEL_API_URL }}            
-            NZSHM22_SOLVIS_API_URL: ${{ vars.NZSHM22_SOLVIS_API_URL }}            
+            NZSHM22_TOSHI_API_URL: ${{ vars.NZSHM22_TOSHI_API_URL }}
+            NZSHM22_NSHM_MODEL_API_URL: ${{ vars.NZSHM22_NSHM_MODEL_API_URL }}
+            NZSHM22_SOLVIS_API_URL: ${{ vars.NZSHM22_SOLVIS_API_URL }}
             NZSHM22_HAZARD_API_URL: ${{ vars.NZSHM22_HAZARD_API_URL }}
             ES_HOST: ${{ vars.ES_HOST }}
 
@@ -193,9 +189,9 @@ jobs:
             SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
             # vars
             NZSHM22_KORORAA_API_URL: ${{ vars.NZSHM22_KORORAA_API_URL }}
-            NZSHM22_TOSHI_API_URL: ${{ vars.NZSHM22_TOSHI_API_URL }}            
-            NZSHM22_NSHM_MODEL_API_URL: ${{ vars.NZSHM22_NSHM_MODEL_API_URL }}            
-            NZSHM22_SOLVIS_API_URL: ${{ vars.NZSHM22_SOLVIS_API_URL }}            
+            NZSHM22_TOSHI_API_URL: ${{ vars.NZSHM22_TOSHI_API_URL }}
+            NZSHM22_NSHM_MODEL_API_URL: ${{ vars.NZSHM22_NSHM_MODEL_API_URL }}
+            NZSHM22_SOLVIS_API_URL: ${{ vars.NZSHM22_SOLVIS_API_URL }}
             NZSHM22_HAZARD_API_URL: ${{ vars.NZSHM22_HAZARD_API_URL }}
             ES_HOST: ${{ vars.ES_HOST }}
 

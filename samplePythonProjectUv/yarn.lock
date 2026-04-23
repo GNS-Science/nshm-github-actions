@@ -5,8 +5,8 @@ __metadata:
   version: 9
   cacheKey: 10c0
 
-"samplepythonproject@workspace:.":
+"samplepythonprojectuv@workspace:.":
   version: 0.0.0-use.local
-  resolution: "samplepythonproject@workspace:."
+  resolution: "samplepythonprojectuv@workspace:."
   languageName: unknown
   linkType: soft
