@@ -118,7 +118,7 @@ jobs:
       - name: Ensure latest requirements.txt
         if: ${{ inputs.docker && inputs.python-version != 'None' }}
         run: |
-          uv export --no-hashes --format requirements-txt > requirements.txt
+          uv export --no-hashes --no-emit-project --no-editable --no-annotate --format requirements-txt > requirements.txt
 
       - name: Use Node.js ${{ inputs.node-version }}
         uses: actions/setup-node@v4
