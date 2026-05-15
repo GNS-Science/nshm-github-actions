@@ -16,9 +16,6 @@ packages = ["src/theproject"]
 [tool.uv]
 exclude-newer = "1 week"
 
-[tool.uv.override-dependencies]
-# exempt nshm/nzshm/solvis/weka/toshi packages from the age cutoff
-
 [dependency-groups]
 dev = [
     "pytest>=8.3.5,<9.0.0",
