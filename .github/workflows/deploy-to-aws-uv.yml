@@ -57,7 +57,7 @@ on:
         default: false
       node-pkg-manager:
         description: Deprecated. Has no effect.
-        required: true
+        required: false
         type: string
         default: 'yarn2'
       docker:
