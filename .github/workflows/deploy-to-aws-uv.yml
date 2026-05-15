@@ -56,10 +56,10 @@ on:
         type: boolean
         default: false
       node-pkg-manager:
-        description: The node package manager to use, either `npm` or `yarn2`
+        description: Deprecated. Has no effect.
         required: true
         type: string
-        default: 'npm'
+        default: 'yarn2'
       docker:
         description: If true, prerequisites for a docker deployment are run
         required: false
@@ -104,6 +104,12 @@ jobs:
         working-directory: ${{ inputs.working-directory }}
     environment: ${{ (inputs.environment && ((github.ref == 'refs/heads/main') && 'AWS_PROD' || 'AWS_TEST')) || '' }}
     steps:
+      - name: Fail if npm package manager
+        if: ${{ inputs.node-pkg-manager == 'npm' }}
+        run: |
+          echo "::error::node-pkg-manager 'npm' is no longer supported. Use 'yarn2' instead."
+          exit 1
+
       - uses: actions/checkout@v5
 
       - name: Install uv and Python
@@ -128,15 +134,7 @@ jobs:
           registry-url: https://npm.pkg.github.com/
           scope: '@gns-science'
 
-      - name: Setup NPM package manager, install and list dependencies
-        if: ${{ inputs.node-pkg-manager == 'npm' }}
-        run: |
-          npm install --location=global npm@latest
-          npm ci
-          npm ls
-
       - name: Setup Yarn2 package manager, install and list dependencies
-        if: ${{ inputs.node-pkg-manager == 'yarn2' }}
         run: |
           corepack enable
           yarn set version berry
@@ -157,7 +155,7 @@ jobs:
         with:
           registry: 461564345538.dkr.ecr.ap-southeast-2.amazonaws.com
 
-      - name: Serverless Deploy (NPM)
+      - name: Serverless Deploy
         env:
             # secrets
             NZSHM22_KORORAA_API_KEY: ${{ secrets.NZSHM22_KORORAA_API_KEY }}
@@ -174,28 +172,6 @@ jobs:
             NZSHM22_HAZARD_API_URL: ${{ vars.NZSHM22_HAZARD_API_URL }}
             ES_HOST: ${{ vars.ES_HOST }}
 
-        if: ${{ inputs.node-pkg-manager == 'npm' }}
-        run: |
-          STAGE=${{ (github.ref == 'refs/heads/main') && 'prod' || 'test'}} REGION=ap-southeast-2 npm run-script deploy 2>&1 | tee deploy.out
-
-      - name: Serverless Deploy (Yarn2)
-        env:
-            # secrets
-            NZSHM22_KORORAA_API_KEY: ${{ secrets.NZSHM22_KORORAA_API_KEY }}
-            NZSHM22_TOSHI_API_KEY: ${{ secrets.NZSHM22_TOSHI_API_KEY }}
-            NZSHM22_NSHM_MODEL_API_KEY: ${{ secrets.NZSHM22_NSHM_MODEL_API_KEY }}
-            NZSHM22_SOLVIS_API_KEY: ${{ secrets.NZSHM22_SOLVIS_API_KEY }}
-            NZSHM22_HAZARD_API_KEY: ${{ secrets.NZSHM22_HAZARD_API_KEY }}
-            SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
-            # vars
-            NZSHM22_KORORAA_API_URL: ${{ vars.NZSHM22_KORORAA_API_URL }}
-            NZSHM22_TOSHI_API_URL: ${{ vars.NZSHM22_TOSHI_API_URL }}
-            NZSHM22_NSHM_MODEL_API_URL: ${{ vars.NZSHM22_NSHM_MODEL_API_URL }}
-            NZSHM22_SOLVIS_API_URL: ${{ vars.NZSHM22_SOLVIS_API_URL }}
-            NZSHM22_HAZARD_API_URL: ${{ vars.NZSHM22_HAZARD_API_URL }}
-            ES_HOST: ${{ vars.ES_HOST }}
-
-        if: ${{ inputs.node-pkg-manager == 'yarn2' }}
         run: |
           STAGE=${{ (github.ref == 'refs/heads/main') && 'prod' || 'test'}} REGION=ap-southeast-2 yarn run deploy 2>&1 | tee deploy.out
 
