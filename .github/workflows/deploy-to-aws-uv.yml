@@ -134,10 +134,9 @@ jobs:
           registry-url: https://npm.pkg.github.com/
           scope: '@gns-science'
 
-      - name: Setup Yarn2 package manager, install and list dependencies
+      - name: Setup Yarn package manager, install and list dependencies
         run: |
           corepack enable
-          yarn set version berry
           yarn install --immutable
           yarn info
 
