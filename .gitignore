@@ -1,3 +1,7 @@
 samplePythonProject/.tox/
 samplePythonProject/tests/__pycache__/**
+samplePythonProject/.pnp.cjs
+samplePythonProject/.yarn/
 samplePythonProjectUv/tests/__pycache__/**
+samplePythonProjectUv/.pnp.cjs
+samplePythonProjectUv/.yarn/
