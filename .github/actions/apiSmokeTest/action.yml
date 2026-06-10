@@ -19,6 +19,14 @@ inputs:
   url:
     description: Overwrites URL in case the API cannot be reached through the internal URL (this is the case for our apigw APIs)
     required: false
+  legacy-api-key:
+    description: |
+      Fallback API key value to use as `x-api-key` when serverless deploy output
+      doesn't include a `TempApiKey-…` line (e.g. when the stack has moved past
+      the legacy `apiGateway.apiKeys` config to a Lambda authorizer). Should be
+      passed as a secret. Auto-masked via `::add-mask::` regardless.
+    required: false
+    default: ""
 
 runs:
   using: node20
