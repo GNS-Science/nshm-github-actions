@@ -94,16 +94,6 @@ on:
         type: string
         default: "data.*about.*Hello"
 
-    secrets:
-      smoketest-legacy-api-key:
-        description: |
-          Optional fallback API key used by the Smoke Test step when serverless
-          deploy output doesn't include a `TempApiKey-…` line (e.g. stacks that
-          have moved past `apiGateway.apiKeys` to a Lambda authorizer with
-          x-api-key compatibility). Passed to `apiSmokeTest`'s `legacy-api-key`
-          input and auto-masked.
-        required: false
-
 jobs:
 
   deploy:
@@ -191,4 +181,16 @@ jobs:
             expected-regex: ${{ inputs.smoketest-expected }}
             working-directory: ${{ inputs.working-directory}}
             url: ${{ (github.ref == 'refs/heads/main') && inputs.smoketest-url-prod || inputs.smoketest-url-test }}
-            legacy-api-key: ${{ secrets.smoketest-legacy-api-key }}
+            # Fallback x-api-key for stacks that have moved past `apiGateway.apiKeys`
+            # to a Lambda authorizer (so no TempApiKey-* line in deploy.out).
+            # Picks up any of the standard GNS-Science API-key secrets inherited via
+            # `secrets: inherit`. Each consumer's serverless.yml wires its own
+            # named secret into the Lambda authorizer's LEGACY_API_KEY env var.
+            legacy-api-key: >-
+              ${{ secrets.LEGACY_API_KEY
+                  || secrets.NZSHM22_TOSHI_API_KEY
+                  || secrets.NZSHM22_KORORAA_API_KEY
+                  || secrets.NZSHM22_NSHM_MODEL_API_KEY
+                  || secrets.NZSHM22_SOLVIS_API_KEY
+                  || secrets.NZSHM22_HAZARD_API_KEY
+                  || '' }}
