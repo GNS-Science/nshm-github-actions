@@ -28,24 +28,28 @@ async function smokeTest() {
         core.error("Failed to read deploy.out");
     }
     const urlMatch = data.match(urlRegex);
-    if (!urlMatch) {
-        core.error("Could not find URL")
-    }
-    let url = altUrl || urlMatch[0];
-    const keyMatch = data.match(keyRegex);
-    if (!keyMatch) {
-        core.error("Could not find key")
-    }
-    const key = keyMatch[0];
-
+    let url = altUrl || (urlMatch && urlMatch[0]);
     if (!hasValue(url)) {
         core.setFailed("Could not extract API URL from deployment output");
         return;
     }
 
+    // Try TempApiKey regex in deploy.out first (legacy serverless apiGateway.apiKeys).
+    // Fall back to the `legacy-api-key` input — used when the deploy stack has
+    // moved past TempApiKey (e.g. JWT authorizer with x-api-key compatibility).
+    const keyMatch = data.match(keyRegex);
+    const legacyApiKey = hasValue(core.getInput("legacy-api-key"));
+    let key = (keyMatch && keyMatch[0]) || legacyApiKey;
+
     if (!hasValue(key)) {
-        core.setFailed("Could not extract API key from deployment output");
+        core.setFailed(
+            "Could not extract API key: no `TempApiKey` line in deploy.out and " +
+            "no `legacy-api-key` input provided."
+        );
         return;
+    }
+    if (!keyMatch && legacyApiKey) {
+        core.info("Using `legacy-api-key` input (no TempApiKey in deploy.out)");
     }
 
     if (url.endsWith("{any+}")) {
@@ -53,8 +57,11 @@ async function smokeTest() {
         url = url.replace("{any+}", "graphql");
     }
 
+    // Mask the key in any subsequent log output (defence-in-depth — the value
+    // should already be coming from a secret, but ::add-mask is free insurance).
+    core.setSecret(key);
     core.info("URL: " + url);
-    core.info("Key: " + key);
+    core.info("Key: <masked>");
     core.info("Query: " + query);
 
     // send sample query to the API

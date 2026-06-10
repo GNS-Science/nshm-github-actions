@@ -94,6 +94,16 @@ on:
         type: string
         default: "data.*about.*Hello"
 
+    secrets:
+      smoketest-legacy-api-key:
+        description: |
+          Optional fallback API key used by the Smoke Test step when serverless
+          deploy output doesn't include a `TempApiKey-…` line (e.g. stacks that
+          have moved past `apiGateway.apiKeys` to a Lambda authorizer with
+          x-api-key compatibility). Passed to `apiSmokeTest`'s `legacy-api-key`
+          input and auto-masked.
+        required: false
+
 jobs:
 
   deploy:
@@ -181,3 +191,4 @@ jobs:
             expected-regex: ${{ inputs.smoketest-expected }}
             working-directory: ${{ inputs.working-directory}}
             url: ${{ (github.ref == 'refs/heads/main') && inputs.smoketest-url-prod || inputs.smoketest-url-test }}
+            legacy-api-key: ${{ secrets.smoketest-legacy-api-key }}
