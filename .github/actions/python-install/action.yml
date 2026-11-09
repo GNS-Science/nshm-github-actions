@@ -58,7 +58,7 @@ runs:
     #       install Poetry
     #----------------------------------------------
     - name: Install and configure Poetry
-      uses: GNS-Science/install-poetry@main
+      uses: GNS-Science/install-poetry@fix-installer-url
       with:
         version: ${{ inputs.poetry-version }}
         virtualenvs-create: true
