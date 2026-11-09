@@ -83,7 +83,7 @@ jobs:
           path: ${{ inputs.working-directory }}/${{ inputs.changelog-path }}
 
       - name: install_package
-        uses: GNS-Science/nshm-github-actions/.github/actions/python-install@fix-installer-url
+        uses: GNS-Science/nshm-github-actions/.github/actions/python-install@test/poetry
         with:
           python-version: ${{ inputs.python-version }}
           poetry-version: ${{ inputs.poetry-version }}
