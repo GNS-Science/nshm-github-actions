@@ -114,7 +114,7 @@ jobs:
 
       - name: Install and configure Poetry
         if: ${{ inputs.python-version != 'None' }}
-        uses: GNS-Science/install-poetry@main
+        uses: GNS-Science/install-poetry@fix-installer-url
         with:
           virtualenvs-create: true
           virtualenvs-in-project: true
