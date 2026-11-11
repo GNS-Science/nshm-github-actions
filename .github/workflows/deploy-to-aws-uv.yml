@@ -112,14 +112,14 @@ jobs:
 
       - uses: actions/checkout@v5
 
-      - name: Install uv and Python
+      - name: Install Python and uv
         if: ${{ inputs.python-version != 'None' }}
-        uses: astral-sh/setup-uv@v6
+        uses: GNS-Science/nshm-github-actions/.github/actions/python-install-uv@main
         with:
-          version: ${{ inputs.uv-version }}
           python-version: ${{ inputs.python-version }}
-          enable-cache: true
-          cache-dependency-glob: ${{ inputs.working-directory }}/uv.lock
+          uv-version: ${{ inputs.uv-version }}
+          working-directory: ${{ inputs.working-directory }}
+          install-dependencies: false
 
       - name: Ensure latest requirements.txt
         if: ${{ inputs.docker && inputs.python-version != 'None' }}

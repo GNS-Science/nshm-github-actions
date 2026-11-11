@@ -6,7 +6,6 @@ inputs:
   query:
     description: The GraphQL query to send
     required: true
-    type: string
     default: "query {about}"
   expected-regex:
     description: A regex for verifying the response from the deployed API
