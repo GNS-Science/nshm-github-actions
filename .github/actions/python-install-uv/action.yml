@@ -1,4 +1,5 @@
 name: Setup Python Venv (uv)
+description: Set up Python and uv, then install project dependencies
 
 # Composite action for Python projects that installs with uv
 
@@ -6,27 +7,26 @@ inputs:
   python-version:
     description: A Python version to use
     required: true
-    type: string
   uv-version:
     description: The uv version to use
     required: false
-    type: string
     default: "latest"
   working-directory:
     description: The working directory
     required: false
-    type: string
     default: .
   delete-uv-lock:
     description: Delete uv.lock file in order to test against newer versions
     required: false
-    type: boolean
-    default: false
+    default: "false"
   optional-dependency-groups:
     description: Which optional group or groups to install. Use comma delimiter for multiple groups e.g `dev,doc`.
     required: false
-    type: string
     default: ""
+  install-dependencies:
+    description: Run uv sync to install project dependencies. Set to false to only set up Python and uv.
+    required: false
+    default: "true"
 
 runs:
   using: "composite"
@@ -41,6 +41,15 @@ runs:
       working-directory: ${{ inputs.working-directory }}
       run: |
         echo "::Warning title=uv.lock::uv.lock is not deleted in this workflow run even though this was requested. See https://github.com/GNS-Science/nshm-github-actions/issues/26."
+
+    #----------------------------------------------
+    #       put pythonX.Y on PATH; setup-uv only sets UV_PYTHON, but
+    #       tools outside uv (e.g. serverless-python-requirements) call
+    #       the interpreter by name
+    #----------------------------------------------
+    - uses: actions/setup-python@v6
+      with:
+        python-version: ${{ inputs.python-version }}
 
     #----------------------------------------------
     #       install uv (and Python via uv)
@@ -58,6 +67,7 @@ runs:
     #       install dependencies via uv sync
     #----------------------------------------------
     - name: Install dependencies
+      if: ${{ inputs.install-dependencies == 'true' }}
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       env:

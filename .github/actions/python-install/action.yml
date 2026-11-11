@@ -1,4 +1,5 @@
 name: Setup Python Venv
+description: Set up Python and Poetry, then install project dependencies
 
 # Reusable workflow for Python projects that checks out repo and installs with Poetry
 
@@ -6,25 +7,20 @@ inputs:
   python-version:
     description: A Python version to use
     required: true
-    type: string
   poetry-version:
     description: The poetry version to use
     required: false
-    type: string
   working-directory:
     description: The working directory
     required: false
-    type: string
     default: .
   delete-poetry-lock:
     description: Delete poetry lock file in order to test against newer versions
     required: false
-    type: boolean
-    default: false
+    default: "false"
   optional-dependency-groups:
     description: Which optional group or groups to install. Use comma delimiter for multiple groups e.g `dev,doc`.
     required: false
-    type: string
     default: ""
 
 runs:
