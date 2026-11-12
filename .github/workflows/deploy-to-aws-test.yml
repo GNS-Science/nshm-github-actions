@@ -16,8 +16,8 @@ jobs:
   call-test-workflow:
     uses: ./.github/workflows/deploy-to-aws.yml
     with:
-      python-version:  3.11
-      node-version: 22.22.1
+      python-version: "3.15"
+      node-version: 26.13.1
       working-directory: samplePythonProject
       aws-login: false
       smoketest-query: 'query Query {country(code: "NZ") {capital}}'
