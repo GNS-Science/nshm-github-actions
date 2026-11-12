@@ -10,7 +10,7 @@
         "@actions/core": "^3.0.1"
     },
     "devDependencies": {
-        "@rollup/plugin-commonjs": "^28.0.6",
+        "@rollup/plugin-commonjs": "^29.0.3",
         "@rollup/plugin-node-resolve": "^16.0.1",
         "rollup": "^4.49.0"
     },
