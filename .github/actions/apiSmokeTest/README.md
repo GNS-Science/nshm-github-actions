@@ -27,7 +27,7 @@ npm run-script build
 
 Otherwise your changes won't have an effect.
 
-While developing on your branch, go to the [deploy-to-aws.yml workflow](../../workflows/deploy-to-aws.yml) and change the reference to the action:
+While developing on your branch, go to the [deploy-to-aws-uv.yml workflow](../../workflows/deploy-to-aws-uv.yml) and change the reference to the action:
 
 ```yaml
       - name: Smoke Test
