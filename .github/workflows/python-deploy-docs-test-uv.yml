@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
   # schedules this to run weekly
   # schedule:
-  #   - cron: '5 3 * * 0' # At 03:05 on Sunday
+  #   - cron: "5 3 * * 0" # At 03:05 on Sunday
   push:
     branches: [main, pre-release]
   pull_request:

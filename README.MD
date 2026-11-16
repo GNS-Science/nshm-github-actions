@@ -39,9 +39,9 @@ jobs:
   release-and-distribute:
     uses:  GNS-Science/nshm-github-actions/.github/workflows/python-release.yml@main
     with:
-      python-version: '3.12'
-      # tag-prefix: 'v'          # default: v
-      # changelog-path: 'CHANGELOG.md'  # default: CHANGELOG.md
+      python-version: "3.12"
+      # tag-prefix: "v"          # default: v
+      # changelog-path: "CHANGELOG.md"  # default: CHANGELOG.md
     secrets: inherit
 ```
 
@@ -59,7 +59,7 @@ jobs:
   deploy-docs:
     uses:  GNS-Science/nshm-github-actions/.github/workflows/python-deploy-docs.yml@main
     with:
-      python-version: '3.12'
+      python-version: "3.12"
     secrets: inherit
 ```
 
@@ -94,9 +94,9 @@ jobs:
   release-and-distribute:
     uses: GNS-Science/nshm-github-actions/.github/workflows/python-release-uv.yml@main
     with:
-      python-version: '3.12'
-      # tag-prefix: 'v'          # default: v
-      # changelog-path: 'CHANGELOG.md'  # default: CHANGELOG.md
+      python-version: "3.12"
+      # tag-prefix: "v"          # default: v
+      # changelog-path: "CHANGELOG.md"  # default: CHANGELOG.md
     secrets: inherit
 ```
 
@@ -109,7 +109,7 @@ jobs:
   deploy-docs:
     uses: GNS-Science/nshm-github-actions/.github/workflows/python-deploy-docs-uv.yml@main
     with:
-      python-version: '3.12'
+      python-version: "3.12"
     secrets: inherit
 ```
 
@@ -124,7 +124,7 @@ Example use:
     needs: call-test-workflow
     uses: GNS-Science/nshm-github-actions/.github/workflows/deploy-to-aws.yml@main
     with:
-      python-version: '3.12'
+      python-version: "3.12"
     secrets: inherit
 ```
 

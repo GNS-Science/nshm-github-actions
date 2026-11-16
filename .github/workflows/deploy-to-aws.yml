@@ -34,17 +34,17 @@ on:
         description: The Python version to use. If set to "None", no python features are installed.
         required: true
         type: string
-        default: '3.12'
+        default: "3.12"
       operating-system:
         description: The operating system to use
         required: false
         type: string
-        default: 'ubuntu-latest'
+        default: "ubuntu-latest"
       node-version:
         description: The Node version to use
         required: false
         type: string
-        default: '24'
+        default: "24"
       environment:
         description: If true, will use AWS_PROD or AWS_TEST environments
         required: false
@@ -54,7 +54,7 @@ on:
         description: Deprecated, has no effect
         required: false
         type: string
-        default: 'yarn2'
+        default: "yarn2"
       docker:
         description: If true, prerequisites for a docker deployment are run
         required: false
@@ -136,7 +136,7 @@ jobs:
           node-version: ${{ inputs.node-version }}
           check-latest: true
           registry-url: https://npm.pkg.github.com/
-          scope: '@gns-science'
+          scope: "@gns-science"
 
       - name: Setup Yarn package manager, install and list dependencies
         run: |
