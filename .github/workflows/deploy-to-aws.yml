@@ -34,7 +34,7 @@ on:
         description: The Python version to use. If set to "None", no python features are installed.
         required: true
         type: string
-        default: '3.15'
+        default: '3.12'
       operating-system:
         description: The operating system to use
         required: false
@@ -44,7 +44,7 @@ on:
         description: The Node version to use
         required: false
         type: string
-        default: '26'
+        default: '24'
       environment:
         description: If true, will use AWS_PROD or AWS_TEST environments
         required: false
@@ -105,9 +105,9 @@ jobs:
           echo "::error::node-pkg-manager 'npm' is no longer supported. Use 'yarn2' instead."
           exit 1
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-python@v5
+      - uses: actions/setup-python@v7
         if: ${{ inputs.python-version != 'None' }}
         with:
           python-version: ${{ inputs.python-version }}
@@ -131,7 +131,7 @@ jobs:
           poetry export --without-hashes --format=requirements.txt > requirements.txt
 
       - name: Use Node.js ${{ inputs.node-version }}
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: ${{ inputs.node-version }}
           check-latest: true
@@ -146,7 +146,7 @@ jobs:
 
       - name: Configure AWS Credentials
         if: ${{ inputs.aws-login }}
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID || secrets.AWS_TOSHI_ACCESS_KEY_ID}}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY || secrets.AWS_TOSHI_SECRET_ACCESS_KEY}}
@@ -154,7 +154,7 @@ jobs:
 
       - name: Login to ECR
         if: ${{ inputs.docker }}
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: 461564345538.dkr.ecr.ap-southeast-2.amazonaws.com      
 
