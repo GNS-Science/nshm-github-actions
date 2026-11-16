@@ -45,7 +45,7 @@ runs:
     #----------------------------------------------
     #       install Python
     #----------------------------------------------
-    - uses: actions/setup-python@v6
+    - uses: actions/setup-python@v7
       id: pythonInstallStep
       with:
         python-version: ${{ inputs.python-version }}
@@ -67,7 +67,7 @@ runs:
     - name: Load cached venv
       id: cached-poetry-dependencies
       if: ${{ inputs.delete-poetry-lock == 'false' }}
-      uses: actions/cache@v4
+      uses: actions/cache@v6
       with:
         path: ${{ inputs.working-directory }}/.venv
         key: venv-${{ runner.os }}-${{ steps.pythonInstallStep.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}-python-run-tests

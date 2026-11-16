@@ -47,7 +47,7 @@ runs:
     #       tools outside uv (e.g. serverless-python-requirements) call
     #       the interpreter by name
     #----------------------------------------------
-    - uses: actions/setup-python@v6
+    - uses: actions/setup-python@v7
       with:
         python-version: ${{ inputs.python-version }}
 
@@ -56,7 +56,7 @@ runs:
     #       caching is handled automatically by setup-uv
     #----------------------------------------------
     - name: Install uv and Python
-      uses: astral-sh/setup-uv@v6
+      uses: astral-sh/setup-uv@v10.3.3
       with:
         version: ${{ inputs.uv-version }}
         python-version: ${{ inputs.python-version }}
