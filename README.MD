@@ -4,72 +4,11 @@ A repo for NZSHM GitHub actions and reusable workflows.
 
 ## Python Repos
 
-### [Python Tests Workflow](./.github/workflows/python-run-tests.yml)
-
-Test workflow for Python repos. Runs `poetry run tox` and uploads coverage data to `Codecove`.
-
-The repo needs to have the secret `CODECOV_TOKEN` available.
-
-See the workflow file for available inputs.
-
-Minimal setup:
-
-```yml
-jobs:
-  call-test-workflow:
-    uses: GNS-Science/nshm-github-actions/.github/workflows/python-run-tests.yml@main
-    with:
-      operating-systems: "['ubuntu-latest', 'macos-latest', 'windows-latest']"
-      python-versions: "['3.12', '3.13', '3.14']"
-    secrets: inherit
-```
-
-### [Python Release Workflow](./.github/workflows/python-release.yml)
-
-Creates a GitHub release and publishes the package to PyPI. Would commonly be one of two jobs along with with Python Deploy Docs in a repo workflow triggered by e.g. tagging a version.
-
-Requires the secret `PYPI_API_TOKEN`.
-
-When triggered by a version tag, the workflow verifies that `CHANGELOG.md` contains a `## [VERSION]` section matching the tag before proceeding. It fails fast (before installing dependencies) if the entry is missing.
-
-Example use:
-
-```yml
-jobs:
-  release-and-distribute:
-    uses:  GNS-Science/nshm-github-actions/.github/workflows/python-release.yml@main
-    with:
-      python-version: "3.12"
-      # tag-prefix: "v"          # default: v
-      # changelog-path: "CHANGELOG.md"  # default: CHANGELOG.md
-    secrets: inherit
-```
-
-
-### [Python Deploy Docs Workflow](./.github/workflows/python-deploy-docs.yml)
-
-Publishes documentation for a python package to GitHub pages. Uses `mkdocs` for building documentation. Would commonly be one of two jobs along with with Python Release Workflow in a repo workflow triggered by e.g. tagging a version.
-
-Requires that the branch or tag you want to use has permission to do so in the `github-pages` environment; see [GitHub documentation](https://docs.github.com/en/actions/how-tos/deploy/configure-and-manage-deployments/manage-environments).
-
-Example use:
-
-```yml
-jobs:
-  deploy-docs:
-    uses:  GNS-Science/nshm-github-actions/.github/workflows/python-deploy-docs.yml@main
-    with:
-      python-version: "3.12"
-    secrets: inherit
-```
-
-## uv Workflows
-
-The workflows below are uv-based equivalents of the Poetry workflows above. Use them for projects that have migrated from Poetry to [uv](https://docs.astral.sh/uv/).
+Workflows for Python projects using [uv](https://docs.astral.sh/uv/).
 
 ### [Python Tests Workflow (uv)](./.github/workflows/python-run-tests-uv.yml)
 
-Equivalent of the Poetry tests workflow. Runs `uv run tox` and uploads coverage data to Codecov.
+Runs `uv run tox` and uploads coverage data to Codecov.
 
 Minimal setup:
 
@@ -87,7 +26,7 @@ jobs:
 
 Creates a GitHub release and publishes the package to PyPI using `uv build`. Requires the secret `PYPI_API_TOKEN`.
 
-Same changelog-entry gate as the Poetry variant above.
+When triggered by a version tag, the workflow verifies that `CHANGELOG.md` contains a `## [VERSION]` section matching the tag before proceeding. It fails fast (before installing dependencies) if the entry is missing.
 
 ```yml
 jobs:
@@ -115,20 +54,20 @@ jobs:
 
 ## API Deployment
 
-[deploy-to-aws.yml](./.github/workflows/deploy-to-aws.yml) deploys Python and JS APIs to AWS.
+[deploy-to-aws-uv.yml](./.github/workflows/deploy-to-aws-uv.yml) deploys Python and JS APIs to AWS.
 
 Example use:
 
 ```yaml
   call-deploy-workflow:
     needs: call-test-workflow
-    uses: GNS-Science/nshm-github-actions/.github/workflows/deploy-to-aws.yml@main
+    uses: GNS-Science/nshm-github-actions/.github/workflows/deploy-to-aws-uv.yml@main
     with:
       python-version: "3.12"
     secrets: inherit
 ```
 
-See [deploy-to-aws.yml](./.github/workflows/deploy-to-aws.yml) for a list of supported and required list of secrets and environment variables as well as workflow inputs.
+See [deploy-to-aws-uv.yml](./.github/workflows/deploy-to-aws-uv.yml) for a list of supported and required list of secrets and environment variables as well as workflow inputs.
 
 ## Pre-push changelog hook
 

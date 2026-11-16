@@ -1,1 +1,0 @@
-This is a dummy project to check that workflows can run Python tests.

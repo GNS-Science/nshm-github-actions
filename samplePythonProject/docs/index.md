@@ -1,3 +1,0 @@
-# theproject
-
-Sample project documentation.
