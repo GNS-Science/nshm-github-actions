@@ -114,7 +114,7 @@ jobs:
 
       - name: Install Python and uv
         if: ${{ inputs.python-version != 'None' }}
-        uses: GNS-Science/nshm-github-actions/.github/actions/python-install-uv@main
+        uses: GNS-Science/nshm-github-actions/.github/actions/python-install-uv@chore/upgrade
         with:
           python-version: ${{ inputs.python-version }}
           uv-version: ${{ inputs.uv-version }}
@@ -175,7 +175,7 @@ jobs:
           STAGE=${{ (github.ref == 'refs/heads/main') && 'prod' || 'test'}} REGION=ap-southeast-2 yarn run deploy 2>&1 | tee deploy.out
 
       - name: Smoke Test
-        uses: GNS-Science/nshm-github-actions/.github/actions/apiSmokeTest@main
+        uses: GNS-Science/nshm-github-actions/.github/actions/apiSmokeTest@chore/upgrade
         with:
             query: ${{ inputs.smoketest-query }}
             expected-regex: ${{ inputs.smoketest-expected }}
