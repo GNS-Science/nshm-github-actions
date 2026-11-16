@@ -17,9 +17,9 @@ Minimal setup:
 ```yml
 jobs:
   call-test-workflow:
-    uses: GNS-Science/nshm-github-actions/.github/workflows/python-run-tests.yml@feature/create-test-workflow
+    uses: GNS-Science/nshm-github-actions/.github/workflows/python-run-tests.yml@main
     with:
-      operating-systems: "['ubuntu-latest', 'macos-latest', 'windows.latest']"
+      operating-systems: "['ubuntu-latest', 'macos-latest', 'windows-latest']"
       python-versions: "['3.12', '3.13', '3.14']"
     secrets: inherit
 ```
